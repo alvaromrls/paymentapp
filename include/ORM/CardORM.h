@@ -9,6 +9,7 @@
 #include "IBaseORM.h"
 
 constexpr int CARD_NUMBER_ELEMENTS = 6;
+constexpr std::string_view CARD_TABLE_NAME = "Card";
 
 class CardORM : public IBaseORM
 {
@@ -24,7 +25,7 @@ class CardORM : public IBaseORM
 public:
     CardORM() : cardId{}, cardNumber{},
                 accountId{0}, cardholderName{},
-                expirationDate{}, cardType{0}, IBaseORM("Card")
+                expirationDate{}, cardType{0}, IBaseORM(std::string(CARD_TABLE_NAME))
     {
         // Inicializamos los setters
         setters["card_id"] = [this](const std::string &value)
@@ -87,5 +88,10 @@ public:
     static const int getElements()
     {
         return CARD_NUMBER_ELEMENTS;
+    }
+
+    const std::string findByCardNumber()
+    {
+        return selectWithId(IBaseORM::getTableName(), "card_number", cardNumber);
     }
 };

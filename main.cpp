@@ -15,6 +15,9 @@ extern "C"
 #include "CardORM.h"
 #include "TransactionORM.h"
 #include "HistoryORM.h"
+
+#include "InitialData.h"
+
 int main()
 {
     SQLiteFacade database{"payments.db"};
@@ -38,6 +41,11 @@ int main()
 
     ORMCollector<CardIssuersORM> issuers(CardIssuersORM::getElements());
     database.load(issuers, CardIssuersORM::loadAll());
+
+    if (issuers.getCollection().empty())
+    {
+        AddInitialData a(&database);
+    }
 
     for (auto const &i : issuers.getCollection())
     {
@@ -75,29 +83,29 @@ int main()
     transaction.setCardId(my_card);
     transaction.setMerchantId(merchant);
 
-    for (int i = 0; i < 6; i++)
-    {
-        transaction.setTransactionTime(getCurrentDateTime());
-        transaction.setAmount(i * 100);
-        if (database.saveData(transaction))
-        {
-            std::cout << database.getLastInsertedId() << std::endl;
-            transaction.setTransactionId(database.getLastInsertedId());
-            HistoryORM h;
-            h.setTransactionId(transaction);
-            h.setAccountId(read);
-            database.saveData(h);
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    // for (int i = 0; i < 6; i++)
+    // {
+    //     transaction.setTransactionTime(getCurrentDateTime());
+    //     transaction.setAmount(i * 100);
+    //     if (database.saveData(transaction))
+    //     {
+    //         std::cout << database.getLastInsertedId() << std::endl;
+    //         transaction.setTransactionId(database.getLastInsertedId());
+    //         HistoryORM h;
+    //         h.setTransactionId(transaction);
+    //         h.setAccountId(read);
+    //         database.saveData(h);
+    //     }
+    //     std::this_thread::sleep_for(std::chrono::seconds(1));
+    // }
 
-    ORMCollector<HistoryORM> ts(HistoryORM::getElements());
-    database.load(ts, HistoryORM::loadAll());
+    // ORMCollector<HistoryORM> ts(HistoryORM::getElements());
+    // database.load(ts, HistoryORM::loadAll());
 
-    for (auto &t : ts.getCollection())
-    {
-        std::cout << t.getTransactionId() << "\n";
-    }
+    // for (auto &t : ts.getCollection())
+    // {
+    //     std::cout << t.getTransactionId() << "\n";
+    // }
 
     // my_card.setExpirationDate("2025-02-04");
     // my_card.setCardNumber("123-4546");
@@ -106,6 +114,12 @@ int main()
     // CardIssuersORM alvaro_issuer = issuers.getCollection()[1];
     // my_card.setCardType(alvaro_issuer);
     // database.saveData(my_card);
+
+    CardORM checkCard;
+    checkCard.setCardNumber("123-4546");
+    database.load(checkCard, checkCard.findByCardNumber());
+
+    std::cout << checkCard.getCardholderName() << "\n";
 
     return 0;
 }
