@@ -59,24 +59,6 @@ public:
         return sql.str();
     }
 
-    std::string update() override
-    {
-        std::stringstream sql;
-        sql << "UPDATE TransactionTable SET card_id = '" << cardId
-            << "', merchant_id = " << merchantId
-            << ", transaction_time = '" << transactionTime
-            << "', amount = " << amount
-            << " WHERE transaction_id = " << transactionId << ";";
-        return sql.str();
-    }
-
-    std::string remove() override
-    {
-        std::stringstream sql;
-        sql << "DELETE FROM TransactionTable WHERE transaction_id = " << transactionId << ";";
-        return sql.str();
-    }
-
     std::string load() override
     {
         std::stringstream sql;

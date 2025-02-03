@@ -50,7 +50,5 @@ public:
     }
 
     std::string const save() override { return {}; }
-    std::string update() override { return {}; }
-    std::string remove() override { return {}; }
     std::string load() override { return {}; }
 };

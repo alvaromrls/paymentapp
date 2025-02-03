@@ -48,11 +48,6 @@ bool SQLiteFacade::loadData(IBaseORM &data)
     return executeQuery(data.load(), &data);
 }
 
-bool SQLiteFacade::removeData(IBaseORM &data)
-{
-    return executeQuery(data.remove());
-}
-
 bool SQLiteFacade::load(IBaseORM &data, std::string query)
 {
     return executeQuery(query, &data);
@@ -93,4 +88,8 @@ int SQLiteFacade::loadcallback(void *data, int argc, char **argv, char **colName
         orm->fromSQL(colName, columnValue); // Pasamos cada resultado a fromSQL
     }
     return 0;
+}
+
+int SQLiteFacade::getLastInsertedId(){
+    return static_cast<int>(sqlite3_last_insert_rowid(db));
 }

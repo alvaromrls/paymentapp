@@ -45,24 +45,6 @@ public:
         return sql.str();
     }
 
-    // Implementación del método update()
-    std::string update() override
-    {
-        std::stringstream sql;
-        sql << "UPDATE Merchant SET merchant = '" << merchant
-            << "', merchant_fee = " << merchantFee
-            << " WHERE merchant_id = " << merchantId << ";";
-        return sql.str();
-    }
-
-    // Implementación del método remove()
-    std::string remove() override
-    {
-        std::stringstream sql;
-        sql << "DELETE FROM Merchant WHERE merchant_id = " << merchantId << ";";
-        return sql.str();
-    }
-
     // Implementación del método load()
     std::string load() override
     {

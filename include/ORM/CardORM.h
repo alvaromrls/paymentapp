@@ -71,27 +71,6 @@ public:
         return sql.str();
     }
 
-    // Implementación del método update()
-    std::string update() override
-    {
-        std::stringstream sql;
-        sql << "UPDATE Card SET card_number = '" << cardNumber
-            << "', account_id = " << accountId
-            << ", cardholder_name = '" << cardholderName
-            << "', expiration_date = '" << expirationDate
-            << "', card_type = " << cardType
-            << " WHERE card_id = '" << cardId << "';";
-        return sql.str();
-    }
-
-    // Implementación del método remove()
-    std::string remove() override
-    {
-        std::stringstream sql;
-        sql << "DELETE FROM Card WHERE card_id = '" << cardId << "';";
-        return sql.str();
-    }
-
     // Implementación del método load()
     std::string load() override
     {

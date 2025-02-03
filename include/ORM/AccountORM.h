@@ -32,22 +32,6 @@ public:
         return sql.str();
     }
 
-    // Implementación del método update()
-    std::string update() override
-    {
-        std::stringstream sql;
-        sql << "UPDATE Account SET account_limit = " << limit << " WHERE account_id = " << id << ";";
-        return sql.str();
-    }
-
-    // Implementación del método remove()
-    std::string remove() override
-    {
-        std::stringstream sql;
-        sql << "DELETE FROM Account WHERE account_id = " << id << ";";
-        return sql.str();
-    }
-
     // Implementación del método load()
     std::string load() override
     {

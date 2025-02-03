@@ -14,7 +14,7 @@ extern "C"
 #include "MerchantORM.h"
 #include "CardORM.h"
 #include "TransactionORM.h"
-
+#include "HistoryORM.h"
 int main()
 {
     SQLiteFacade database{"payments.db"};
@@ -75,20 +75,28 @@ int main()
     transaction.setCardId(my_card);
     transaction.setMerchantId(merchant);
 
-    // for (int i = 0; i < 6; i++)
-    // {
-    //     transaction.setTransactionTime(getCurrentDateTime());
-    //     transaction.setAmount(i * 100);
-    //     database.saveData(transaction);
-    //     std::this_thread::sleep_for(std::chrono::seconds(1));
-    // }
+    for (int i = 0; i < 6; i++)
+    {
+        transaction.setTransactionTime(getCurrentDateTime());
+        transaction.setAmount(i * 100);
+        if (database.saveData(transaction))
+        {
+            std::cout << database.getLastInsertedId() << std::endl;
+            transaction.setTransactionId(database.getLastInsertedId());
+            HistoryORM h;
+            h.setTransactionId(transaction);
+            h.setAccountId(read);
+            database.saveData(h);
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
-    ORMCollector<TransactionORM> ts(TransactionORM::getElements());
-    database.load(ts, TransactionORM::loadAll());
+    ORMCollector<HistoryORM> ts(HistoryORM::getElements());
+    database.load(ts, HistoryORM::loadAll());
 
     for (auto &t : ts.getCollection())
     {
-        std::cout << t.getTransactionId() << " at " << t.getTransactionTime() << ", cost:" << t.getAmount() << "\n";
+        std::cout << t.getTransactionId() << "\n";
     }
 
     // my_card.setExpirationDate("2025-02-04");

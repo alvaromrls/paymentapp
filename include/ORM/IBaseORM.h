@@ -23,12 +23,6 @@ public:
     // Método para guardar un objeto en la base de datos (devuelve la consulta SQL)
     virtual const std::string save() = 0;
 
-    // Método para actualizar un objeto en la base de datos (devuelve la consulta SQL)
-    virtual std::string update() = 0;
-
-    // Método para eliminar un objeto en la base de datos (devuelve la consulta SQL)
-    virtual std::string remove() = 0;
-
     // Método para obtener un objeto desde la base de datos por su ID (devuelve la consulta SQL)
     virtual std::string load() = 0;
 
