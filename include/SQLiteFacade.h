@@ -17,22 +17,12 @@ public:
     bool createTables() override;
     bool saveData(IBaseORM &data) override;
     bool loadData(IBaseORM &data) override;
+    bool removeData(IBaseORM &data) override;
+    bool load(IBaseORM &data, std::string query) override;
 
 private:
     sqlite3 *db;
     bool executeQuery(const std::string &query);
     bool executeQuery(const std::string &query, IBaseORM *orm);
-    static int loadcallback(void *data, int argc, char **argv, char **colNames)
-    {
-        std::cout << "Reading data.. \n";
-        IBaseORM *orm = static_cast<IBaseORM *>(data); // Convertimos el puntero genérico a IBaseORM
-        for (int i = 0; i < argc; i++)
-        {
-            // Supongamos que tenemos una columna llamada 'account_id' en el resultado
-            std::string columnValue = argv[i] ? argv[i] : "NULL";
-            std::string colName = colNames[i] ? colNames[i] : "NULL";
-            orm->fromSQL(colName, columnValue); // Pasamos cada resultado a fromSQL
-        }
-        return 0;
-    }
+    static int loadcallback(void *data, int argc, char **argv, char **colNames);
 };

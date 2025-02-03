@@ -16,7 +16,7 @@ public:
     int getLimit() const { return limit; }
     void setLimit(int accountLimit) { limit = accountLimit; }
 
-    AccountORM()
+    AccountORM() : id{0}, limit{0}
     {
         setters["account_id"] = [this](const std::string &value)
         { this->setId(std::stoi(value)); };
