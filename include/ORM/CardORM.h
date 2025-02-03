@@ -88,19 +88,4 @@ public:
     {
         return CARD_NUMBER_ELEMENTS;
     }
-
-    // Método fromSQL() para parsear los resultados de la consulta
-    void fromSQL(const std::string &colName, const std::string &colValue) override
-    {
-        if (colValue == "NULL")
-        {
-            return;
-        }
-
-        auto it = setters.find(colName);
-        if (it != setters.end())
-        {
-            it->second(colValue); // Llama al setter correspondiente
-        }
-    }
 };
