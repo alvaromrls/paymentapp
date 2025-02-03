@@ -26,5 +26,17 @@ public:
     virtual std::string load() = 0;
 
     // Método para establecer los atributos del objeto a partir de una consulta SQL
-    virtual void fromSQL(const std::string &colName, const std::string &colValue) = 0;
+    virtual void fromSQL(const std::string &colName, const std::string &colValue)
+    {
+        if (colValue == "NULL")
+        {
+            return;
+        }
+        // Buscar el setter correspondiente y aplicar el valor
+        auto it = setters.find(colName);
+        if (it != setters.end())
+        {
+            it->second(colValue); // Llama al setter correspondiente
+        }
+    }
 };

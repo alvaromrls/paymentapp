@@ -55,19 +55,4 @@ public:
         sql << "SELECT * FROM Account WHERE account_id = " << id << ";";
         return sql.str();
     }
-
-    // Método fromSQL() para parsear los resultados de la consulta
-    void fromSQL(const std::string &colName, const std::string &colValue) override
-    {
-        if (colValue == "NULL")
-        {
-            return;
-        }
-        // Buscar el setter correspondiente y aplicar el valor
-        auto it = setters.find(colName);
-        if (it != setters.end())
-        {
-            it->second(colValue); // Llama al setter correspondiente
-        }
-    }
 };
