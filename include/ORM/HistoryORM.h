@@ -44,8 +44,7 @@ public:
     std::string load() override
     {
         std::stringstream sql;
-        sql << "SELECT * FROM AccountHistory WHERE account_id = " << accountId
-            << " AND transaction_id = " << transactionId << ";";
+        sql << "SELECT * FROM AccountHistory WHERE account_id = " << accountId;
         return sql.str();
     }
 
