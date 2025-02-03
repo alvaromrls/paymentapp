@@ -14,7 +14,7 @@ class MerchantORM : public IBaseORM
     int merchantFee;
 
 public:
-    MerchantORM() : merchantId{0}, merchant{}, merchantFee{0}
+    MerchantORM() : merchantId{0}, merchant{}, merchantFee{0}, IBaseORM("Merchant")
     {
         // Inicializamos los setters
         setters["merchant_id"] = [this](const std::string &value)

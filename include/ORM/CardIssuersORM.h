@@ -14,7 +14,7 @@ class CardIssuersORM : public IBaseORM
     int issuerFee;
 
 public:
-    CardIssuersORM() : cardType{0}, issuer{}, issuerFee{0}
+    CardIssuersORM() : cardType{0}, issuer{}, issuerFee{0}, IBaseORM("CardIssuers")
     {
         // Inicializamos los setters
         setters["card_type"] = [this](const std::string &value)
@@ -65,14 +65,12 @@ public:
     // Implementación del método load()
     std::string load() override
     {
-        std::stringstream sql;
-        sql << "SELECT * FROM CardIssuers WHERE card_type = " << cardType << ";";
-        return sql.str();
+        return selectWithId(IBaseORM::getTableName(), "card_type", cardType);
     }
 
     static const std::string loadAll()
     {
-        return "SELECT * FROM CardIssuers";
+        return selectAllData("CardIssuers");
     }
 
     static const int getElements()

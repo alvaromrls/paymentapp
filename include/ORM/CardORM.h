@@ -22,7 +22,9 @@ class CardORM : public IBaseORM
     void _setAccountId(int id) { accountId = id; }   // internal use
     void _setCardType(int type) { cardType = type; } // internal use
 public:
-    CardORM() : cardId{}, cardNumber{}, accountId{0}, cardholderName{}, expirationDate{}, cardType{0}
+    CardORM() : cardId{}, cardNumber{},
+                accountId{0}, cardholderName{},
+                expirationDate{}, cardType{0}, IBaseORM("Card")
     {
         // Inicializamos los setters
         setters["card_id"] = [this](const std::string &value)

@@ -73,7 +73,7 @@ int main()
     my_card.setCardholderName("ALVARO M");
     CardIssuersORM alvaro_issuer = issuers.getCollection()[1];
     my_card.setCardType(alvaro_issuer);
-    database.saveData(my_card);
+    // database.saveData(my_card);
 
     return 0;
 }

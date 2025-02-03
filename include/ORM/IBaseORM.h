@@ -1,17 +1,24 @@
 #pragma once
 #include <unordered_map>
+#include "Utils.h"
 #include <string>
 #include <functional>
 
 // Clase base para el ORM
 class IBaseORM
 {
+    std::string _tableName;
+
 protected:
     // Mapa de seters
     std::unordered_map<std::string, std::function<void(const std::string &)>> setters;
 
 public:
+    IBaseORM(std::string tableName) : _tableName(tableName) {};
     virtual ~IBaseORM() = default;
+
+    // Método para obtener el nombre de la tabla SQL
+    std::string getTableName() const { return _tableName; }
 
     // Método para guardar un objeto en la base de datos (devuelve la consulta SQL)
     virtual const std::string save() = 0;

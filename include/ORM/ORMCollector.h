@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <iostream>
 #include <string>
@@ -14,7 +16,7 @@ private:
     int pushEvery; // Número de iteraciones antes de hacer push
 
 public:
-    ORMCollector(int pushEvery) : count(0), pushEvery(pushEvery) {}
+    ORMCollector(int pushEvery) : count(0), pushEvery(pushEvery), IBaseORM("") {}
 
     // Método para agregar un objeto a la colección
     void add(T orm)
