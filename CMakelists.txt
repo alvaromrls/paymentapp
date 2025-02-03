@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(SOURCES
     main.cpp
     sqlite/sqlite3.c
+    src/SQLiteFacade.cpp
 )
 
 # Crear el ejecutable
@@ -18,6 +19,7 @@ add_executable(payment_app ${SOURCES})
 
 # Incluir directorios adicionales 
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include/ORM)
 
 # Enlazar con las bibliotecas necesarias
 target_link_libraries(payment_app pthread)
