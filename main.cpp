@@ -5,12 +5,15 @@ extern "C"
 
 #include "SQLiteFacade.h"
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include <sstream>
 #include "AccountORM.h"
 #include "CardIssuersORM.h"
 #include "ORMCollector.h"
 #include "MerchantORM.h"
 #include "CardORM.h"
+#include "TransactionORM.h"
 
 int main()
 {
@@ -63,16 +66,37 @@ int main()
         std::cout << i.getMerchant() << " : " << i.getMerchantFee() << "%\n";
     }
 
-    for (int i = 0; i < 5; i++)
-        std::cout << "Generated UUID: " << generateSimpleUUID() << std::endl;
-
     CardORM my_card;
-    my_card.setExpirationDate("2025-02-04");
-    my_card.setCardNumber("123-4546");
-    my_card.setAccountId(read);
-    my_card.setCardholderName("ALVARO M");
-    CardIssuersORM alvaro_issuer = issuers.getCollection()[1];
-    my_card.setCardType(alvaro_issuer);
+    my_card.setCardId("02f11529-00db005f0049-0024006d00be-0028003700f3-cc945ebced1a0749abca9eef");
+    database.loadData(my_card);
+    MerchantORM merchant = merchants.getCollection()[0];
+
+    TransactionORM transaction;
+    transaction.setCardId(my_card);
+    transaction.setMerchantId(merchant);
+
+    // for (int i = 0; i < 6; i++)
+    // {
+    //     transaction.setTransactionTime(getCurrentDateTime());
+    //     transaction.setAmount(i * 100);
+    //     database.saveData(transaction);
+    //     std::this_thread::sleep_for(std::chrono::seconds(1));
+    // }
+
+    ORMCollector<TransactionORM> ts(TransactionORM::getElements());
+    database.load(ts, TransactionORM::loadAll());
+
+    for (auto &t : ts.getCollection())
+    {
+        std::cout << t.getTransactionId() << " at " << t.getTransactionTime() << ", cost:" << t.getAmount() << "\n";
+    }
+
+    // my_card.setExpirationDate("2025-02-04");
+    // my_card.setCardNumber("123-4546");
+    // my_card.setAccountId(read);
+    // my_card.setCardholderName("ALVARO M");
+    // CardIssuersORM alvaro_issuer = issuers.getCollection()[1];
+    // my_card.setCardType(alvaro_issuer);
     // database.saveData(my_card);
 
     return 0;

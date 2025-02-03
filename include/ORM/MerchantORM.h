@@ -5,6 +5,7 @@
 #include "IBaseORM.h"
 
 constexpr int MERCHANTS_NUMBER_ELEMENTS = 3;
+constexpr const std::string_view MERCHANTS_TABLE_NAME = "Merchant";
 
 // Implementación de la clase MerchantORM
 class MerchantORM : public IBaseORM
@@ -14,7 +15,7 @@ class MerchantORM : public IBaseORM
     int merchantFee;
 
 public:
-    MerchantORM() : merchantId{0}, merchant{}, merchantFee{0}, IBaseORM("Merchant")
+    MerchantORM() : merchantId{0}, merchant{}, merchantFee{0}, IBaseORM(std::string(MERCHANTS_TABLE_NAME))
     {
         // Inicializamos los setters
         setters["merchant_id"] = [this](const std::string &value)
@@ -72,7 +73,7 @@ public:
 
     static const std::string loadAll()
     {
-        return "SELECT * FROM Merchant";
+        return selectAllData(std::string(MERCHANTS_TABLE_NAME));
     }
 
     static const int getElements()

@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include <ctime>
 
 std::string generateSimpleUUID()
 {
@@ -51,4 +52,14 @@ std::string selectAllData(const std::string &table)
     std::stringstream sql;
     sql << "SELECT * FROM " << table << ";";
     return sql.str();
+}
+
+std::string getCurrentDateTime()
+{
+    std::time_t now = std::time(nullptr);
+    std::tm tmStruct{};
+    localtime_s(&tmStruct, &now);
+    std::ostringstream oss;
+    oss << std::put_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
 }
