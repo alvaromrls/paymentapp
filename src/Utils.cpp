@@ -42,13 +42,15 @@ std::string generateSimpleUUID()
 
 std::string selectWithId(const std::string &table, const std::string &colName, const int id)
 {
-    return selectWithId(table, colName, std::to_string(id));
+    std::stringstream sql;
+    sql << "SELECT * FROM " << table << " WHERE " << colName << " = " << id << ";";
+    return sql.str();
 }
 
 std::string selectWithId(const std::string &table, const std::string &colName, const std::string &id)
 {
     std::stringstream sql;
-    sql << "SELECT * FROM " << table << " WHERE " << colName << " = " << id << ";";
+    sql << "SELECT * FROM " << table << " WHERE " << colName << " = '" << id << "';";
     return sql.str();
 }
 
