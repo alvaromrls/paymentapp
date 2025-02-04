@@ -4,6 +4,11 @@
 #include <random>
 #include <chrono>
 
+/**
+ * @brief Generates a random UUID
+ *
+ * @return std::string
+ */
 std::string generateSimpleUUID();
 
 /**

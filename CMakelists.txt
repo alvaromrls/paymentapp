@@ -9,19 +9,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Definir las rutas de los archivos fuente
 set(SOURCES
-    main.cpp
+    src/main.cpp
     sqlite/sqlite3.c
-    src/SQLiteFacade.cpp
-    src/Utils.cpp
+    src/DBConnector/SQLiteFacade.cpp
+    src/Data/Utils.cpp
 )
 
 # Crear el ejecutable
 add_executable(payment_app ${SOURCES})
 
 # Incluir directorios adicionales 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include/DBConnector)
 include_directories(${PROJECT_SOURCE_DIR}/include/ORM)
 include_directories(${PROJECT_SOURCE_DIR}/include/Data)
+include_directories(${PROJECT_SOURCE_DIR}/include/UI)
 
 # Enlazar con las bibliotecas necesarias
 target_link_libraries(payment_app pthread)

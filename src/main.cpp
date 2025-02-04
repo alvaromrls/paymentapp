@@ -15,6 +15,7 @@ extern "C"
 #include "CardORM.h"
 #include "TransactionORM.h"
 #include "HistoryORM.h"
+#include "TotalDepositORM.h"
 
 #include "InitialData.h"
 #include "DummyData.h"
@@ -45,6 +46,17 @@ int main()
     {
         std::cout << i.getMerchant() << " : " << i.getMerchantFee() << "%\n";
     }
+
+    CardORM user;
+    user.setCardNumber("4532-2830");
+    database.load(user, user.findByCardNumber());
+
+    TotalDepositORM user_deposits(user);
+    database.loadData(user_deposits);
+
+    std::cout << "Query: " << user_deposits.load() << "\n";
+
+    std::cout << "User founds: " << user_deposits.getAmount() << "\n";
 
     return 0;
 }
