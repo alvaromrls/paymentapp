@@ -20,6 +20,8 @@ extern "C"
 #include "InitialData.h"
 #include "DummyData.h"
 
+#include "CommandLineParser.h"
+
 int main()
 {
     SQLiteFacade database{"payments.db"};
@@ -54,9 +56,15 @@ int main()
     TotalDepositORM user_deposits(user);
     database.loadData(user_deposits);
 
-    std::cout << "Query: " << user_deposits.load() << "\n";
-
     std::cout << "User founds: " << user_deposits.getAmount() << "\n";
+
+    CommandLineParser cli;
+    cli.printInitialMessage();
+
+    while (cli.running())
+    {
+        cli.processUserInput();
+    }
 
     return 0;
 }
