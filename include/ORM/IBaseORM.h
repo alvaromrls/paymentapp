@@ -14,6 +14,7 @@ protected:
     std::unordered_map<std::string, std::function<void(const std::string &)>> setters;
 
 public:
+    IBaseORM() : _tableName("") {};
     IBaseORM(std::string tableName) : _tableName(tableName) {};
     virtual ~IBaseORM() = default;
 
