@@ -59,7 +59,10 @@ int main()
     std::cout << "User founds: " << user_deposits.getAmount() << "\n";
 
     CommandLineParser cli;
-    cli.printInitialMessage();
+    cli.addCommand("PAY", std::make_unique<PayCommand>());
+    cli.addCommand("HISTORY", std::make_unique<HistoryCommand>());
+    cli.addCommand("SHOW DUMMY", std::make_unique<ShowDummyCommand>());
+    cli.startRunning();
 
     while (cli.running())
     {

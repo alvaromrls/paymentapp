@@ -7,29 +7,23 @@
 #include <algorithm>
 
 #include "InputValidator.h"
+#include "Commands.h"
 
 class CommandLineParser
 {
     const std::string initialmsg = "SELECT OPERATION: ";
-    const std::vector<std::string> options = {"PAY", "HISTORY", "SHOW DUMMY", "EXIT", "HELP"};
-    std::vector<std::string> number_options;
-    const std::unordered_map<std::string, std::string> help = {
-        {"PAY", "Request a new payment. It will ask for the Amount, the Card Number, and the Commerce Type."},
-        {"HISTORY", "Given a Credit Card, it will show the transaction history. Optional: date range."},
-        {"SHOW DUMMY", "[For this POC version] Will show all already added Card numbers."},
-        {"EXIT", "Will finish the program."},
-        {"HELP", "Show available commands and their descriptions."}};
+    std::vector<std::string> options;                                             // for order & index access
+    std::unordered_map<std::string, std::unique_ptr<LineParserCommand>> commands; // stores commands
+    bool active = false;                                                          // Shows is it's running
+    std::unique_ptr<InputValidator> validator;                                    // validate option is correctly given
 
-    bool active = true; // Control de ejecución
-
+    // Format text for user
     std::string formatOption(int option, const std::string &description)
     {
         std::stringstream msg;
-        msg << "[" << option << "]: " << std::left << std::setw(20) << description << "\n";
+        msg << "[" << option << "]:\t" << std::left << std::setw(20) << description << "\n";
         return msg.str();
     }
-
-    std::unique_ptr<InputValidator> validator;
 
 public:
     CommandLineParser()
@@ -39,6 +33,26 @@ public:
         validator->setNext(std::move(rangeValidator));
     }
 
+    void startRunning()
+    {
+        // Ensure these are the last
+        addCommand("HELP", std::make_unique<HelpCommand>(&commands)); // Help command
+        addCommand("EXIT", std::make_unique<ExitCommand>(active));    // Exit command
+        active = true;
+        printInitialMessage();
+    }
+
+    // ASSOCIATES A COMMAND WITH A GIVEN NAME
+    void addCommand(std::string name, std::unique_ptr<LineParserCommand> newCommand)
+    {
+        if (!active)
+        {
+            options.push_back(name);
+            commands[name] = std::move(newCommand);
+        }
+    }
+
+    // Shows main menu
     void printInitialMessage()
     {
         std::cout << std::string(40, '-') << "\n";
@@ -48,8 +62,10 @@ public:
         {
             std::cout << formatOption(i + 1, options[i]);
         }
+        std::cout << std::string(40, '-') << "\n";
     }
 
+    // Running getter
     bool running() const
     {
         return active;
@@ -57,7 +73,7 @@ public:
 
     void processUserInput()
     {
-        std::cout << "Choose an option (1-" << options.size() << "): ";
+        std::cout << "\nChoose an option (1-" << options.size() << "): ";
         std::string userInput;
         std::getline(std::cin, userInput);
 
@@ -65,23 +81,14 @@ public:
         {
             return;
         }
-
+        std::cout << std::string(40, '-') << "\n";
         int userOption{std::stoi(userInput)};
-
         std::string selectedOption = options[userOption - 1];
+        commands.at(selectedOption)->execute();
 
-        if (selectedOption == "EXIT")
+        if (active)
         {
-            std::cout << "Exiting...\n";
-            active = false;
-        }
-        else if (help.find(selectedOption) != help.end())
-        {
-            std::cout << help.at(selectedOption) << "\n";
-        }
-        else
-        {
-            std::cout << "No information available for this option.\n";
+            printInitialMessage();
         }
     }
 };
