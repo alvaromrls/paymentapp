@@ -5,6 +5,7 @@
 #include "IBaseORM.h"
 
 constexpr int CARD_ISSUERS_NUMBER_ELEMENTS = 3;
+constexpr const std::string_view CARD_ISSUERS_TABLE_NAME = "CardIssuers";
 
 // Implementación de la clase CardIssuersORM
 class CardIssuersORM : public IBaseORM
@@ -14,7 +15,8 @@ class CardIssuersORM : public IBaseORM
     int issuerFee;
 
 public:
-    CardIssuersORM() : cardType{0}, issuer{}, issuerFee{0}, IBaseORM("CardIssuers")
+    CardIssuersORM() : cardType{0}, issuer{}, issuerFee{0},
+                       IBaseORM(std::string(CARD_ISSUERS_TABLE_NAME))
     {
         // Inicializamos los setters
         setters["card_type"] = [this](const std::string &value)

@@ -4,6 +4,9 @@
 #include <iostream>
 #include "IBaseORM.h"
 
+constexpr int ACCOUNT_NUMBER_ELEMENTS = 2;
+constexpr const std::string_view ACCOUNT_TABLE_NAME = "Account";
+
 class AccountORM : public IBaseORM
 {
     int id;
@@ -16,7 +19,7 @@ public:
     int getLimit() const { return limit; }
     void setLimit(int accountLimit) { limit = accountLimit; }
 
-    AccountORM() : id{0}, limit{0}, IBaseORM("Account")
+    AccountORM() : id{0}, limit{0}, IBaseORM(std::string(ACCOUNT_TABLE_NAME))
     {
         setters["account_id"] = [this](const std::string &value)
         { this->setId(std::stoi(value)); };
