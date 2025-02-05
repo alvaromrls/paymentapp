@@ -52,5 +52,5 @@ public:
     }
 
     std::string virtual const save() override { return {}; }
-    std::string virtual load() override { return {}; }
+    std::string virtual load() override { return selectAllData(data.getTableName()); }
 };

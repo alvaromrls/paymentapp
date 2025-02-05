@@ -32,8 +32,15 @@ std::string selectWithId(const std::string &table, const std::string &colName, c
 std::string selectAllData(const std::string &table);
 
 /**
- * @brief Get the Current Time in SQL format
+ * @brief Get the Current Time in SQL format (YYYY-MM-DD HH-MM-SS)
  *
  * @return std::string
  */
 std::string getCurrentDateTime();
+
+/**
+ * @brief Get the Current Date in SQL format (YYYY-MM-DD)
+ *
+ * @return std::string
+ */
+std::string getCurrentDate();

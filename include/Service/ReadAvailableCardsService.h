@@ -7,17 +7,6 @@
 #include "Commands.h"
 #include "IDabaseFacade.h"
 
-class AvailableCardsORM : public ORMCollector<CardORM>
-{
-public:
-    AvailableCardsORM() : ORMCollector<CardORM>(CardORM::getElements()) {};
-    std::string virtual load() override
-    {
-        return "SELECT * FROM " + std::string(CARD_TABLE_NAME) +
-               " WHERE expiration_date >= DATE('now');";
-    }
-};
-
 // Class to implement dependency injection for reading non-expired cards from the database.
 class ReadAvailableCardsDB : public ReadAvailableCards
 {
@@ -28,17 +17,19 @@ public:
     ReadAvailableCardsDB(IDatabaseFacade *db,
                          std::map<int, CardIssuersORM> issuerMap)
         : db(db), issuerMap(issuerMap) {};
-    std::vector<std::tuple<std::string, std::string, std::string>> read()
+    std::vector<ReadCards> read()
     {
-        std::vector<std::tuple<std::string, std::string, std::string>> result;
-        AvailableCardsORM dispoCards;
+        std::vector<ReadCards> result;
+        ORMCollector<CardORM> dispoCards;
         db->load(dispoCards);
         for (const auto &card : dispoCards.getCollection())
         {
-            result.push_back(std::tuple<std::string, std::string, std::string>(
-                card.getCardNumber(),
-                card.getCardholderName(),
-                issuerMap[card.getCardType()].getIssuer()));
+            result.push_back(
+                ReadCards{
+                    card.getCardNumber(),
+                    card.getCardholderName(),
+                    issuerMap[card.getCardType()].getIssuer(),
+                    card.getExpirationDate() > getCurrentDate() ? " valid " : "expired"});
         }
         return result;
     }

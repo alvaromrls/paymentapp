@@ -70,3 +70,13 @@ std::string getCurrentDateTime()
     oss << std::put_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
     return oss.str();
 }
+
+std::string getCurrentDate()
+{
+    std::time_t now = std::time(nullptr);
+    std::tm tmStruct{};
+    localtime_s(&tmStruct, &now);
+    std::ostringstream oss;
+    oss << std::put_time(&tmStruct, "%Y-%m-%d");
+    return oss.str();
+}

@@ -174,12 +174,14 @@ public:
     }
 };
 
+using ReadCards = std::tuple<std::string, std::string, std::string, std::string>;
+
 // Placeholder for reading data
 class ReadAvailableCards
 {
 public:
     // CARD NUMBER - USER NAME - ISSUER TYPE
-    virtual std::vector<std::tuple<std::string, std::string, std::string>> read() = 0;
+    virtual std::vector<ReadCards> read() = 0;
     virtual ~ReadAvailableCards() = default;
 };
 
@@ -198,8 +200,8 @@ public:
         auto seachResult = readCommand->read();
         for (const auto &card : seachResult)
         {
-            auto [number, user, issuer] = card;
-            std::cout << "Card Number: " << number << " ---- Owner: " << user << " ---- Type: " << issuer << "\n";
+            auto [number, user, issuer, isDispo] = card;
+            std::cout << "[" << isDispo << "]" << " Card Number: " << number << " ---- Owner: " << user << " ---- Type: " << issuer << "\n";
         }
     }
 };
