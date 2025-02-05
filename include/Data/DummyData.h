@@ -127,7 +127,7 @@ class AddDummyData
                   [](const std::tuple<std::string, int, std::string, int> &t1,
                      const std::tuple<std::string, int, std::string, int> &t2)
                   {
-                      return std::get<2>(t1) < std::get<2>(t2);
+                      return std::get<2>(t1) > std::get<2>(t2);
                   });
 
         for (const auto &transaction : initTransactions)
