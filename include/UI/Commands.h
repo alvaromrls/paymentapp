@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include "DataParser.h"
 
+// Base class for Command Patern
 class Command
 {
 public:
@@ -13,6 +14,7 @@ public:
     virtual ~Command() = default;
 };
 
+// Command Patern for Line Parser
 class LineParserCommand : public Command
 {
     const std::string help;
@@ -44,12 +46,14 @@ public:
 };
 
 // Service Interface to add a new Transaction
-class AddNewTranstaction
+class AddNewTransaction
 {
 public:
-    virtual ~AddNewTranstaction() = default;
+    virtual ~AddNewTransaction() = default;
     // Save into DB a new transaction
-    virtual void addTransaction(const std::string &cardNumber, const std::string MerchantType, float amount) = 0;
+    virtual void addTransaction(const std::string &cardNumber,
+                                const std::string MerchantType,
+                                float amount) = 0;
 };
 
 // PAY command
@@ -59,7 +63,7 @@ class PayCommand : public LineParserCommand
     std::map<std::string, int> merchantTaxMap;
     std::unique_ptr<CalculateTotalFounds> totalFoundsService;
     std::unique_ptr<FindCardFee> findCardFeeService;
-    std::unique_ptr<AddNewTranstaction> newTransactionService;
+    std::unique_ptr<AddNewTransaction> newTransactionService;
     CreditCardParser creditcardparser;
     MoneyParser moneyParser;
     MerchantParser merchantParser;
@@ -67,11 +71,13 @@ class PayCommand : public LineParserCommand
 public:
     PayCommand(std::map<std::string, int> merchantTaxMap,
                std::unique_ptr<CalculateTotalFounds> totalFoundsService,
-               std::unique_ptr<FindCardFee> findCardFeeService)
+               std::unique_ptr<FindCardFee> findCardFeeService,
+               std::unique_ptr<AddNewTransaction> newTransactionService)
         : LineParserCommand(PAY_COMMAND_HELP),
           merchantTaxMap(merchantTaxMap),
           totalFoundsService(std::move(totalFoundsService)),
           findCardFeeService(std::move(findCardFeeService)),
+          newTransactionService(std::move(newTransactionService)),
           creditcardparser(),
           merchantParser(merchantTaxMap) {};
 
@@ -142,7 +148,10 @@ public:
         }
         else
         {
-            std::cout << "Storing transaction \n";
+            std::cout << "Storing transaction ...\n";
+            newTransactionService->addTransaction(cardNumber, merchant, total_amount);
+            std::cout << "Transaction stored! \n";
+            std::cout << std::string(40, '-') << "\n";
         }
     }
 };

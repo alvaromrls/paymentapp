@@ -17,6 +17,7 @@
 #include "ReadTransactionHistoryService.h"
 #include "CalculateTotalFoundsService.h"
 #include "FindCardFeeService.h"
+#include "AddTransactionService.h"
 
 int main()
 {
@@ -61,7 +62,11 @@ int main()
     // 1. Pay command
     std::unique_ptr<CalculateTotalFoundsDB> findFounds = std::make_unique<CalculateTotalFoundsDB>(&database);
     std::unique_ptr<FindCardFeeDB> findFee = std::make_unique<FindCardFeeDB>(&database, issuersMap);
-    cli.addCommand("PAY", std::make_unique<PayCommand>(merchantTaxMap, std::move(findFounds), std::move(findFee)));
+    std::unique_ptr<AddNewTransactionDB> transactionService = std::make_unique<AddNewTransactionDB>(&database, merchantMap);
+    cli.addCommand("PAY", std::make_unique<PayCommand>(merchantTaxMap,
+                                                       std::move(findFounds),
+                                                       std::move(findFee),
+                                                       std::move(transactionService)));
 
     // 2. History Command
     std::unique_ptr<ReadTransactionHistoryDB> historyService = std::make_unique<ReadTransactionHistoryDB>(&database, merchantMap);
