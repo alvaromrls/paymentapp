@@ -15,7 +15,7 @@ const std::string TOTAL_DEPOSIT__AMOUNT = "amount";
  *        in the history given a credit card. It can only read data.
  *
  */
-class TotalDepositORM : public IBaseORM
+class ExpendedMoneyORM : public IBaseORM
 {
     int account_id;
     int _amount;
@@ -23,7 +23,7 @@ class TotalDepositORM : public IBaseORM
 
 public:
     // Constructor: needs a CardORM object. Other constructors may be useful in different cases.
-    explicit TotalDepositORM(CardORM userCard) : account_id(userCard.getAccountId())
+    explicit ExpendedMoneyORM(CardORM userCard) : account_id(userCard.getAccountId())
     {
         setters[TOTAL_DEPOSIT__AMOUNT] = [this](const std::string &value)
         { this->setAmount(std::stoi(value)); };

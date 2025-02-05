@@ -25,70 +25,20 @@ public:
     }
 };
 
-// PAY command
-const std::string PAY_COMMAND_HELP = "Request a new payment. It will ask for the Amount, the Card Number, and the Commerce Type.";
-class PayCommand : public LineParserCommand
+// Class to get a valid Credit card from user interface.
+class CreditCardParser
 {
-public:
-    PayCommand() : LineParserCommand(PAY_COMMAND_HELP) {};
-    void execute() override
-    {
-        std::cout << "Executing payment...\n";
-    }
-};
-
-// Amount - Merchant - DateTime
-using TransactionHistory = std::tuple<float, std::string, std::string>;
-
-class ReadTransactionHistory
-{
-public:
-    virtual ~ReadTransactionHistory() = default;
-    virtual std::vector<TransactionHistory> read(const std::string &cardNumber,
-                                                 const std::string &startingDate,
-                                                 const std::string endingDate) = 0;
-};
-
-// HISTORY command
-const std::string HISTORY_COMMAND_HELP = "Given a Credit Card, it will show the transaction history. Optional: date range.";
-class HistoryCommand : public LineParserCommand
-{
-    std::unique_ptr<DateTimeSQLValidator> DateValidator;
     std::unique_ptr<CreditCardValidator> CardValidator;
-    std::unique_ptr<ReadTransactionHistory> service;
-    void printDateFormat()
-    {
-        std::cout << "->Time format is YYYY-MM-DD (fill with 0's if needed)\n";
-    }
 
-    std::string askForDates(const std::string &limit, const std::string &ifEmpty)
-    {
-        while (true)
-        {
-            std::cout << "Please select a " << limit << " date for the request (empty if not important):";
-            std::string userInput;
-            std::getline(std::cin, userInput);
-            // std::cout << userInput << std::endl;
-            if (userInput == "")
-            {
-                return ifEmpty;
-            }
-            else if (DateValidator->validate(userInput))
-            {
-                return userInput;
-            }
-            else
-            {
-                printDateFormat();
-            }
-        }
-    }
+public:
+    CreditCardParser() : CardValidator(std::make_unique<CreditCardValidator>()) {};
 
     void printCardFormat()
     {
         std::cout << "->Credit card format is 'XXXX-XXXX' \n";
     }
 
+    // Ask in a loop until gets a valid card format or null input.
     std::optional<std::string> askForCard()
     {
         while (true)
@@ -110,10 +60,126 @@ class HistoryCommand : public LineParserCommand
             }
         }
     }
+};
+
+// Service Interface to calculate the Total Founds
+class CalculateTotalFounds
+{
+public:
+    virtual ~CalculateTotalFounds() = default;
+    // Get available founds (limit - expended). Negative value means expired card.
+    virtual float getFounds(const std::string &cardNumber) = 0;
+};
+
+// Service Interface to calculate the Total Founds
+class FindCardFee
+{
+public:
+    virtual ~FindCardFee() = default;
+    // Get the feed asociated to a card. 0 value means no card found.
+    virtual int getFee(const std::string &cardNumber) = 0;
+};
+
+// PAY command
+const std::string PAY_COMMAND_HELP = "Request a new payment. It will ask for the Amount, the Card Number, and the Commerce Type.";
+class PayCommand : public LineParserCommand
+{
+    std::map<std::string, int> merchantTaxMap;
+    std::unique_ptr<CalculateTotalFounds> totalFoundsService;
+    std::unique_ptr<FindCardFee> findCardFeeService;
+    CreditCardParser creditcardparser;
+
+public:
+    PayCommand(std::map<std::string, int> merchantTaxMap,
+               std::unique_ptr<CalculateTotalFounds> totalFoundsService,
+               std::unique_ptr<FindCardFee> findCardFeeService)
+        : LineParserCommand(PAY_COMMAND_HELP),
+          merchantTaxMap(merchantTaxMap),
+          totalFoundsService(std::move(totalFoundsService)),
+          findCardFeeService(std::move(findCardFeeService)),
+          creditcardparser() {};
+
+    void execute() override
+    {
+        std::string cardNumber;
+        std::cout << "Executing payment...\n";
+        creditcardparser.printCardFormat();
+        auto card = creditcardparser.askForCard();
+        if (card.has_value())
+        {
+            cardNumber = card.value();
+        }
+
+        int fee = findCardFeeService->getFee(cardNumber);
+        if (fee == 0)
+        {
+            std::cout << "[Error]: Card not found! \n";
+            return;
+        }
+
+        float founds = totalFoundsService->getFounds(cardNumber);
+        if (founds < 0)
+        {
+            std::cout << "[Error]: Expired card \n";
+            return;
+        }
+        std::cout << "Total Founds are: " << founds << "\n";
+    }
+};
+
+// Amount - Merchant - DateTime
+using TransactionHistory = std::tuple<float, std::string, std::string>;
+
+// Service Interface to get all the transactions from a given card number
+class ReadTransactionHistory
+{
+public:
+    virtual ~ReadTransactionHistory() = default;
+    virtual std::vector<TransactionHistory> read(const std::string &cardNumber,
+                                                 const std::string &startingDate,
+                                                 const std::string endingDate) = 0;
+};
+
+// HISTORY command
+const std::string HISTORY_COMMAND_HELP = "Given a Credit Card, it will show the transaction history. Optional: date range.";
+class HistoryCommand : public LineParserCommand
+{
+    std::unique_ptr<DateTimeSQLValidator> DateValidator;
+    std::unique_ptr<CreditCardValidator> CardValidator;
+    std::unique_ptr<ReadTransactionHistory> service;
+    CreditCardParser creditcardparser;
+
+    void printDateFormat()
+    {
+        std::cout << "->Time format is YYYY-MM-DD (fill with 0's if needed)\n";
+    }
+
+    std::string askForDates(const std::string &limit, const std::string &ifEmpty)
+    {
+        while (true)
+        {
+            std::cout << "Please select a " << limit << " date for the request (empty = ignore1):";
+            std::string userInput;
+            std::getline(std::cin, userInput);
+            // std::cout << userInput << std::endl;
+            if (userInput == "")
+            {
+                return ifEmpty;
+            }
+            else if (DateValidator->validate(userInput))
+            {
+                return userInput;
+            }
+            else
+            {
+                printDateFormat();
+            }
+        }
+    }
 
 public:
     HistoryCommand(std::unique_ptr<ReadTransactionHistory> service)
-        : LineParserCommand(HISTORY_COMMAND_HELP), service(std::move(service))
+        : LineParserCommand(HISTORY_COMMAND_HELP), service(std::move(service)), creditcardparser()
     {
         DateValidator = std::make_unique<DateTimeSQLValidator>();
         CardValidator = std::make_unique<CreditCardValidator>();
@@ -126,8 +192,8 @@ public:
         std::string cardNumber;
 
         // Asking for Credit Card Number
-        printCardFormat();
-        auto card = askForCard();
+        creditcardparser.printCardFormat();
+        auto card = creditcardparser.askForCard();
         if (card.has_value())
         {
             cardNumber = card.value();

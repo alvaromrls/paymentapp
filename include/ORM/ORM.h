@@ -7,7 +7,7 @@
 #include "IBaseORM.h"
 #include "MerchantORM.h"
 #include "ORMCollector.h"
-#include "TotalDepositORM.h"
+#include "ExpendedMoneyORM.h"
 #include "TransactionORM.h"
 
 // Import all ORM at once just importing this file
