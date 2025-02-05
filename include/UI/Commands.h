@@ -48,15 +48,33 @@ public:
     }
 };
 
+// Placeholder for reading data
+class ReadAvailableCards
+{
+public:
+    // CARD NUMBER - USER NAME - ISSUER TYPE
+    virtual std::vector<std::tuple<std::string, std::string, std::string>> read() = 0;
+    virtual ~ReadAvailableCards() = default;
+};
+
 // SHOW DUMMY COMMAND
 const std::string SHOW_DUMMY_COMMAND_HELP = "It Will show all already added Card numbers. [For this POC version]. ";
 class ShowDummyCommand : public LineParserCommand
 {
+    std::unique_ptr<ReadAvailableCards> readCommand;
+
 public:
-    ShowDummyCommand() : LineParserCommand(SHOW_DUMMY_COMMAND_HELP) {};
+    ShowDummyCommand(std::unique_ptr<ReadAvailableCards> readCommand) : LineParserCommand(SHOW_DUMMY_COMMAND_HELP), readCommand(std::move(readCommand)) {};
     void execute() override
     {
-        std::cout << "Showing Dummy Cards Number...\n";
+        std::cout << "Showing Dummy Cards Number [so you can test one]\n";
+        std::cout << std::string(40, '-') << "\n";
+        auto seachResult = readCommand->read();
+        for (const auto &card : seachResult)
+        {
+            auto [number, user, issuer] = card;
+            std::cout << "Card Number: " << number << " ---- Owner: " << user << " ---- Type: " << issuer << "\n";
+        }
     }
 };
 

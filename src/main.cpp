@@ -1,7 +1,4 @@
-extern "C"
-{
-#include "sqlite3.h"
-}
+#include <map>
 
 #include "SQLiteFacade.h"
 #include <iostream>
@@ -22,6 +19,8 @@ extern "C"
 
 #include "CommandLineParser.h"
 
+#include "ReadAvailableCardsService.h"
+
 int main()
 {
     SQLiteFacade database{"payments.db"};
@@ -34,11 +33,14 @@ int main()
     {
         AddInitialData a(&database);
         AddDummyData d(&database);
+        database.load(issuers, CardIssuersORM::loadAll());
     }
 
-    for (auto const &i : issuers.getCollection())
+    std::map<int, CardIssuersORM> issuersMap;
+    for (const auto &issuer : issuers.getCollection())
     {
-        std::cout << i.getIssuer() << " : " << i.getIssuerFee() << "%\n";
+        issuersMap[issuer.getCardType()] = issuer;
+        std::cout << issuer.getIssuer() << " : " << issuer.getIssuerFee() << "%\n";
     }
 
     ORMCollector<MerchantORM> merchants(MerchantORM::getElements());
@@ -61,7 +63,9 @@ int main()
     CommandLineParser cli;
     cli.addCommand("PAY", std::make_unique<PayCommand>());
     cli.addCommand("HISTORY", std::make_unique<HistoryCommand>());
-    cli.addCommand("SHOW DUMMY", std::make_unique<ShowDummyCommand>());
+
+    std::unique_ptr<ReadAvailableCardsDB> f = std::make_unique<ReadAvailableCardsDB>(&database, issuersMap);
+    cli.addCommand("SHOW DUMMY", std::make_unique<ShowDummyCommand>(std::move(f)));
     cli.startRunning();
 
     while (cli.running())

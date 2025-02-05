@@ -17,6 +17,7 @@ private:
 
 public:
     ORMCollector(int pushEvery) : count(0), pushEvery(pushEvery), IBaseORM("") {}
+    virtual ~ORMCollector() = default;
 
     // Método para agregar un objeto a la colección
     void add(T orm)
@@ -49,6 +50,6 @@ public:
         return vector;
     }
 
-    std::string const save() override { return {}; }
-    std::string load() override { return {}; }
+    std::string virtual const save() override { return {}; }
+    std::string virtual load() override { return {}; }
 };

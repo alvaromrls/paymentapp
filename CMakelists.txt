@@ -22,6 +22,7 @@ add_executable(payment_app ${SOURCES})
 include_directories(${PROJECT_SOURCE_DIR}/include/DBConnector)
 include_directories(${PROJECT_SOURCE_DIR}/include/ORM)
 include_directories(${PROJECT_SOURCE_DIR}/include/Data)
+include_directories(${PROJECT_SOURCE_DIR}/include/Service)
 include_directories(${PROJECT_SOURCE_DIR}/include/UI)
 
 # Enlazar con las bibliotecas necesarias
