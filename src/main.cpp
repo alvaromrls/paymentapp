@@ -1,18 +1,12 @@
 #include <map>
-
-#include "SQLiteFacade.h"
 #include <iostream>
 #include <thread>
 #include <chrono>
 #include <sstream>
-#include "AccountORM.h"
-#include "CardIssuersORM.h"
-#include "ORMCollector.h"
-#include "MerchantORM.h"
-#include "CardORM.h"
-#include "TransactionORM.h"
-#include "HistoryORM.h"
-#include "ExpendedMoneyORM.h"
+
+#include "SQLiteFacade.h"
+
+#include "ORM.h"
 
 #include "InitialData.h"
 #include "DummyData.h"
@@ -29,9 +23,11 @@ int main()
     SQLiteFacade database{"payments.db"};
     database.createTables();
 
+    // Load card issuers
     ORMCollector<CardIssuersORM> issuers(CardIssuersORM::getElements());
     database.load(issuers, CardIssuersORM::loadAll());
 
+    // Database is empty
     if (issuers.getCollection().empty())
     {
         AddInitialData a(&database);
@@ -45,6 +41,7 @@ int main()
         issuersMap[issuer.getCardType()] = issuer;
     }
 
+    // Load Merchants
     ORMCollector<MerchantORM> merchants(MerchantORM::getElements());
     database.load(merchants, MerchantORM::loadAll());
 
@@ -56,19 +53,26 @@ int main()
         merchantTaxMap[i.getMerchant()] = i.getMerchantFee();
     }
 
+    // Create Command Line Parser
     CommandLineParser cli;
 
+    // Add different commands to Command Line parser
+
+    // 1. Pay command
     std::unique_ptr<CalculateTotalFoundsDB> findFounds = std::make_unique<CalculateTotalFoundsDB>(&database);
     std::unique_ptr<FindCardFeeDB> findFee = std::make_unique<FindCardFeeDB>(&database, issuersMap);
     cli.addCommand("PAY", std::make_unique<PayCommand>(merchantTaxMap, std::move(findFounds), std::move(findFee)));
 
+    // 2. History Command
     std::unique_ptr<ReadTransactionHistoryDB> historyService = std::make_unique<ReadTransactionHistoryDB>(&database, merchantMap);
     cli.addCommand("HISTORY", std::make_unique<HistoryCommand>(std::move(historyService)));
 
+    // 3. Show dummy command (for testing)
     std::unique_ptr<ReadAvailableCardsDB> readCardsService = std::make_unique<ReadAvailableCardsDB>(&database, issuersMap);
     cli.addCommand("SHOW DUMMY", std::make_unique<ShowDummyCommand>(std::move(readCardsService)));
     cli.startRunning();
 
+    // App main loop
     while (cli.running())
     {
         cli.processUserInput();
