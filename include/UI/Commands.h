@@ -4,6 +4,7 @@
 #include <string>
 #include <iomanip>
 #include <unordered_map>
+#include <optional>
 
 class Command
 {
@@ -36,15 +37,105 @@ public:
     }
 };
 
+// Amount - Merchant - DateTime
+using TransactionHistory = std::tuple<double, std::string, std::string>;
+
+class ReadTransactionHistory
+{
+public:
+    virtual ~ReadTransactionHistory() = default;
+    virtual std::vector<TransactionHistory> read(const std::string &cardNumber,
+                                                 const std::string &startingDate,
+                                                 const std::string endingDate) = 0;
+};
+
 // HISTORY command
 const std::string HISTORY_COMMAND_HELP = "Given a Credit Card, it will show the transaction history. Optional: date range.";
 class HistoryCommand : public LineParserCommand
 {
+    std::unique_ptr<DateTimeSQLValidator> DateValidator;
+    std::unique_ptr<CreditCardValidator> CardValidator;
+    std::string startingDate;
+    std::string endingDate;
+    std::string cardNumber;
+
+    void printDateFormat()
+    {
+        std::cout << "->Time format is YYYY-MM-DD (fill with 0's if needed)\n";
+    }
+
+    std::string askForDates(const std::string &limit, const std::string &ifEmpty)
+    {
+        while (true)
+        {
+            std::cout << "Please select a " << limit << " date for the request (empty if not important):";
+            std::string userInput;
+            std::getline(std::cin, userInput);
+            if (userInput == "")
+            {
+                return ifEmpty;
+            }
+            else if (DateValidator->validate(userInput))
+            {
+                return userInput;
+            }
+            else
+            {
+                printDateFormat();
+            }
+        }
+    }
+
+    void printCardFormat()
+    {
+        std::cout << "->Credit card format is 'XXXX-XXXX' \n";
+    }
+
+    std::optional<std::string> askForCard()
+    {
+        while (true)
+        {
+            std::cout << "Please enter your credit card number (empty for leaving):";
+            std::string userInput;
+            std::getline(std::cin, userInput);
+            if (userInput == "")
+            {
+                return {};
+            }
+            else if (CardValidator->validate(userInput))
+            {
+                return userInput;
+            }
+            else
+            {
+                printDateFormat();
+            }
+        }
+    }
+
 public:
-    HistoryCommand() : LineParserCommand(HISTORY_COMMAND_HELP) {};
+    HistoryCommand() : LineParserCommand(HISTORY_COMMAND_HELP)
+    {
+        DateValidator = std::make_unique<DateTimeSQLValidator>();
+        CardValidator = std::make_unique<CreditCardValidator>();
+    }
+
     void execute() override
     {
-        std::cout << "Showing transaction history...\n";
+        printCardFormat();
+        auto card = askForCard();
+        if (card.has_value())
+        {
+            cardNumber = card.value();
+        }
+        else
+        {
+            return;
+        }
+        printDateFormat();
+        startingDate = askForDates("starting", "1990-01-01");
+        endingDate = askForDates("ending", "2300-01-01");
+        std::cout << "Looking for history between :" << startingDate << " and " << endingDate << "\n";
     }
 };
 

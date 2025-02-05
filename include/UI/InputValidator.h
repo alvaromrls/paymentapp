@@ -4,7 +4,7 @@
 #include <sstream>
 #include <memory>
 #include <cctype>
-
+#include <regex>
 #include <algorithm>
 
 // Base Interface por Validators (Chain of Responsability)
@@ -19,6 +19,15 @@ public:
         next = std::move(nextValidator);
         return next.get();
     }
+    virtual bool applyNext(std::string &userInput)
+    {
+        if (next)
+        {
+            return next->validate(userInput);
+        }
+
+        return true;
+    };
 
     virtual bool validate(std::string &userInput) = 0;
 };
@@ -34,13 +43,7 @@ public:
             std::cout << "Invalid input: " << userInput << " -- Please enter a number.\n";
             return false;
         }
-
-        if (next)
-        {
-            return next->validate(userInput);
-        }
-
-        return true;
+        return applyNext(userInput);
     }
 };
 
@@ -61,12 +64,40 @@ public:
             std::cout << "Invalid option. Please select a number between " << minValue << " and " << maxValue << ".\n";
             return false;
         }
-
-        if (next)
-        {
-            return next->validate(userInput);
-        }
-
-        return true;
+        return applyNext(userInput);
     }
+};
+
+// Regex Validator
+class RegexValidator : public InputValidator
+{
+private:
+    std::regex pattern;
+
+public:
+    explicit RegexValidator(const std::string &regexPattern) : pattern(regexPattern) {}
+
+    bool validate(std::string &userInput) override
+    {
+        if (!std::regex_match(userInput, pattern))
+        {
+            std::cout << userInput << " doesn't match the expected pattern \n";
+            return false;
+        }
+        return applyNext(userInput);
+    }
+};
+
+// SQL Datetime Validator (YYYY-MM-DD format)
+class DateTimeSQLValidator : public RegexValidator
+{
+public:
+    DateTimeSQLValidator() : RegexValidator(R"(^\d{4}-\d{2}-\d{2}$)") {}
+};
+
+// Card Format Validator (XXXX-XXXX format)
+class CreditCardValidator : public RegexValidator
+{
+public:
+    CreditCardValidator() : RegexValidator(R"(^\d{4}-\d{4}$)") {}
 };
