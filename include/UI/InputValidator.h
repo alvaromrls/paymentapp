@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -100,4 +102,11 @@ class CreditCardValidator : public RegexValidator
 {
 public:
     CreditCardValidator() : RegexValidator(R"(^\d{4}-\d{4}$)") {}
+};
+
+// Money Format Validator (e.g., 100, 100.5, 100.50, but NOT 100.555)
+class MoneyValidator : public RegexValidator
+{
+public:
+    MoneyValidator() : RegexValidator(R"(^\d+(\.\d{1,2})?$)") {}
 };

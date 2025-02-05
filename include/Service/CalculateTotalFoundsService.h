@@ -31,9 +31,6 @@ public:
         account.setId(card.getAccountId());
         db->load(account);
 
-        std::cout << "Expended " << deposit.getAmount() << " from "
-                  << account.getLimit() << std::endl;
-
         return float((account.getLimit() - deposit.getAmount()) / 100.f);
     }
 };

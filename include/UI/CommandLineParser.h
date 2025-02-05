@@ -28,9 +28,6 @@ class CommandLineParser
 public:
     CommandLineParser()
     {
-        validator = std::make_unique<NumericValidator>();
-        auto rangeValidator = std::make_unique<RangeValidator>(1, 5);
-        validator->setNext(std::move(rangeValidator));
     }
 
     void startRunning()
@@ -38,6 +35,11 @@ public:
         // Ensure these are the last
         addCommand("HELP", std::make_unique<HelpCommand>(&commands)); // Help command
         addCommand("EXIT", std::make_unique<ExitCommand>(active));    // Exit command
+
+        validator = std::make_unique<NumericValidator>();
+        auto rangeValidator = std::make_unique<RangeValidator>(1, options.size());
+        validator->setNext(std::move(rangeValidator));
+
         active = true;
         printInitialMessage();
     }

@@ -4,7 +4,7 @@
 #include <string>
 #include <iomanip>
 #include <unordered_map>
-#include <optional>
+#include "DataParser.h"
 
 class Command
 {
@@ -22,43 +22,6 @@ public:
     void printHelp()
     {
         std::cout << help << "\n";
-    }
-};
-
-// Class to get a valid Credit card from user interface.
-class CreditCardParser
-{
-    std::unique_ptr<CreditCardValidator> CardValidator;
-
-public:
-    CreditCardParser() : CardValidator(std::make_unique<CreditCardValidator>()) {};
-
-    void printCardFormat()
-    {
-        std::cout << "->Credit card format is 'XXXX-XXXX' \n";
-    }
-
-    // Ask in a loop until gets a valid card format or null input.
-    std::optional<std::string> askForCard()
-    {
-        while (true)
-        {
-            std::cout << "Please enter your credit card number (empty for leaving):";
-            std::string userInput;
-            std::getline(std::cin, userInput);
-            if (userInput == "")
-            {
-                return {};
-            }
-            else if (CardValidator->validate(userInput))
-            {
-                return userInput;
-            }
-            else
-            {
-                printCardFormat();
-            }
-        }
     }
 };
 
@@ -80,6 +43,15 @@ public:
     virtual int getFee(const std::string &cardNumber) = 0;
 };
 
+// Service Interface to add a new Transaction
+class AddNewTranstaction
+{
+public:
+    virtual ~AddNewTranstaction() = default;
+    // Save into DB a new transaction
+    virtual void addTransaction(const std::string &cardNumber, const std::string MerchantType, float amount) = 0;
+};
+
 // PAY command
 const std::string PAY_COMMAND_HELP = "Request a new payment. It will ask for the Amount, the Card Number, and the Commerce Type.";
 class PayCommand : public LineParserCommand
@@ -87,7 +59,10 @@ class PayCommand : public LineParserCommand
     std::map<std::string, int> merchantTaxMap;
     std::unique_ptr<CalculateTotalFounds> totalFoundsService;
     std::unique_ptr<FindCardFee> findCardFeeService;
+    std::unique_ptr<AddNewTranstaction> newTransactionService;
     CreditCardParser creditcardparser;
+    MoneyParser moneyParser;
+    MerchantParser merchantParser;
 
 public:
     PayCommand(std::map<std::string, int> merchantTaxMap,
@@ -97,7 +72,8 @@ public:
           merchantTaxMap(merchantTaxMap),
           totalFoundsService(std::move(totalFoundsService)),
           findCardFeeService(std::move(findCardFeeService)),
-          creditcardparser() {};
+          creditcardparser(),
+          merchantParser(merchantTaxMap) {};
 
     void execute() override
     {
@@ -123,7 +99,51 @@ public:
             std::cout << "[Error]: Expired card \n";
             return;
         }
-        std::cout << "Total Founds are: " << founds << "\n";
+
+        std::cout << std::string(40, '-') << "\n";
+        moneyParser.printFormat();
+        float amount = moneyParser.askForCard();
+        if (amount < 0)
+        {
+            return;
+        }
+
+        merchantParser.printFormat();
+        auto optional_merchant = merchantParser.askForMerchant();
+        std::string merchant;
+        if (optional_merchant.has_value())
+        {
+            merchant = optional_merchant.value();
+        }
+        else
+        {
+            return;
+        }
+
+        float amount_card_fee = amount * float(fee / 100.f);
+        float amount_merchant_fee = amount * float(merchantTaxMap[merchant] / 100.f);
+        float total_amount = amount + amount_card_fee + amount_merchant_fee;
+
+        std::cout << std::string(40, '-') << "\n"
+                  << "Initial Amount:\t\t" << amount << "\n"
+                  << "Card fee (%):\t\t" << fee << "\n"
+                  << "Card fee (total):\t" << amount_card_fee << "\n"
+                  << "Merchant fee (%):\t" << merchantTaxMap[merchant] << "\n"
+                  << "Merchant fee (total):\t" << amount_merchant_fee << "\n"
+                  << std::string(40, '-') << "\n"
+                  << "TOTAL:\t\t\t" << total_amount << " (Euros)\n"
+                  << std::string(40, '-') << "\n"
+                  << "Available Founds:\t" << founds << " (Euros)\n"
+                  << std::string(40, '-') << "\n";
+        if (total_amount > founds)
+        {
+            std::cout << "[Error]: Not enought founds\n";
+            return;
+        }
+        else
+        {
+            std::cout << "Storing transaction \n";
+        }
     }
 };
 
