@@ -152,6 +152,8 @@ public:
             newTransactionService->addTransaction(cardNumber, merchant, total_amount);
             std::cout << "Transaction stored! \n";
             std::cout << std::string(40, '-') << "\n";
+            std::cout << "Balance after transaction:\t" << founds - total_amount << "\n";
+            std::cout << std::string(40, '-') << "\n";
         }
     }
 };
@@ -281,7 +283,7 @@ public:
 };
 
 // SHOW DUMMY COMMAND
-const std::string SHOW_DUMMY_COMMAND_HELP = "It Will show all already added Card numbers. [For this POC version]. ";
+const std::string SHOW_DUMMY_COMMAND_HELP = "Shows all added Card numbers. [For this POC version]. ";
 class ShowDummyCommand : public LineParserCommand
 {
     std::unique_ptr<ReadAvailableCards> readCommand;
