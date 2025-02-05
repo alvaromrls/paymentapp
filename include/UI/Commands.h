@@ -141,6 +141,15 @@ public:
         printDateFormat();
         startingDate = askForDates("starting", "1990-01-01");
         endingDate = askForDates("ending", "2300-01-01");
+
+        if (startingDate >= endingDate)
+        {
+            std::cout << std::string(40, '-') << "\n";
+            std::cout << "[Error]: starting date should be before endingDate \n";
+            std::cout << std::string(40, '-') << "\n";
+            return;
+        }
+
         auto searchResult = service->read(cardNumber, startingDate, endingDate);
 
         std::cout << std::string(40, '-') << "\n";
