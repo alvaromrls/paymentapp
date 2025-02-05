@@ -20,6 +20,7 @@
 #include "CommandLineParser.h"
 
 #include "ReadAvailableCardsService.h"
+#include "ReadTransactionHistoryService.h"
 
 int main()
 {
@@ -40,29 +41,21 @@ int main()
     for (const auto &issuer : issuers.getCollection())
     {
         issuersMap[issuer.getCardType()] = issuer;
-        std::cout << issuer.getIssuer() << " : " << issuer.getIssuerFee() << "%\n";
     }
 
     ORMCollector<MerchantORM> merchants(MerchantORM::getElements());
     database.load(merchants, MerchantORM::loadAll());
-
+    std::map<int, MerchantORM> merchantMap;
     for (auto const &i : merchants.getCollection())
     {
-        std::cout << i.getMerchant() << " : " << i.getMerchantFee() << "%\n";
+        merchantMap[i.getMerchantId()] = i;
     }
-
-    CardORM user;
-    user.setCardNumber("4532-2830");
-    database.load(user, user.findByCardNumber());
-
-    TotalDepositORM user_deposits(user);
-    database.load(user_deposits);
-
-    std::cout << "User founds: " << user_deposits.getAmount() << "\n";
 
     CommandLineParser cli;
     cli.addCommand("PAY", std::make_unique<PayCommand>());
-    cli.addCommand("HISTORY", std::make_unique<HistoryCommand>());
+
+    std::unique_ptr<ReadTransactionHistoryDB> historyService = std::make_unique<ReadTransactionHistoryDB>(&database, merchantMap);
+    cli.addCommand("HISTORY", std::make_unique<HistoryCommand>(std::move(historyService)));
 
     std::unique_ptr<ReadAvailableCardsDB> f = std::make_unique<ReadAvailableCardsDB>(&database, issuersMap);
     cli.addCommand("SHOW DUMMY", std::make_unique<ShowDummyCommand>(std::move(f)));

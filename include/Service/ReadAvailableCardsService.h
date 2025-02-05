@@ -26,7 +26,8 @@ class ReadAvailableCardsDB : public ReadAvailableCards
 
 public:
     ReadAvailableCardsDB(IDatabaseFacade *db,
-                         std::map<int, CardIssuersORM> issuerMap) : db(db), issuerMap(issuerMap) {};
+                         std::map<int, CardIssuersORM> issuerMap)
+        : db(db), issuerMap(issuerMap) {};
     std::vector<std::tuple<std::string, std::string, std::string>> read()
     {
         std::vector<std::tuple<std::string, std::string, std::string>> result;

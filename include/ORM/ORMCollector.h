@@ -17,6 +17,7 @@ private:
 
 public:
     ORMCollector(int pushEvery) : count(0), pushEvery(pushEvery), IBaseORM("") {}
+    ORMCollector() : count(0), pushEvery(T::getElements()) {}
     virtual ~ORMCollector() = default;
 
     // Método para agregar un objeto a la colección

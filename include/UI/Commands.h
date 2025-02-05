@@ -38,7 +38,7 @@ public:
 };
 
 // Amount - Merchant - DateTime
-using TransactionHistory = std::tuple<double, std::string, std::string>;
+using TransactionHistory = std::tuple<float, std::string, std::string>;
 
 class ReadTransactionHistory
 {
@@ -55,10 +55,7 @@ class HistoryCommand : public LineParserCommand
 {
     std::unique_ptr<DateTimeSQLValidator> DateValidator;
     std::unique_ptr<CreditCardValidator> CardValidator;
-    std::string startingDate;
-    std::string endingDate;
-    std::string cardNumber;
-
+    std::unique_ptr<ReadTransactionHistory> service;
     void printDateFormat()
     {
         std::cout << "->Time format is YYYY-MM-DD (fill with 0's if needed)\n";
@@ -71,6 +68,7 @@ class HistoryCommand : public LineParserCommand
             std::cout << "Please select a " << limit << " date for the request (empty if not important):";
             std::string userInput;
             std::getline(std::cin, userInput);
+            // std::cout << userInput << std::endl;
             if (userInput == "")
             {
                 return ifEmpty;
@@ -108,13 +106,14 @@ class HistoryCommand : public LineParserCommand
             }
             else
             {
-                printDateFormat();
+                printCardFormat();
             }
         }
     }
 
 public:
-    HistoryCommand() : LineParserCommand(HISTORY_COMMAND_HELP)
+    HistoryCommand(std::unique_ptr<ReadTransactionHistory> service)
+        : LineParserCommand(HISTORY_COMMAND_HELP), service(std::move(service))
     {
         DateValidator = std::make_unique<DateTimeSQLValidator>();
         CardValidator = std::make_unique<CreditCardValidator>();
@@ -122,6 +121,11 @@ public:
 
     void execute() override
     {
+        std::string startingDate;
+        std::string endingDate;
+        std::string cardNumber;
+
+        // Asking for Credit Card Number
         printCardFormat();
         auto card = askForCard();
         if (card.has_value())
@@ -132,10 +136,32 @@ public:
         {
             return;
         }
+
+        // Asking for Date Interval
         printDateFormat();
         startingDate = askForDates("starting", "1990-01-01");
         endingDate = askForDates("ending", "2300-01-01");
-        std::cout << "Looking for history between :" << startingDate << " and " << endingDate << "\n";
+        auto searchResult = service->read(cardNumber, startingDate, endingDate);
+
+        std::cout << std::string(40, '-') << "\n";
+
+        if (searchResult.empty())
+        {
+            std::cout << "Nothing found with the given data \n";
+            return;
+        }
+
+        std::cout << searchResult.size() << " transaction(s) found \n";
+        std::cout << std::string(40, '-') << "\n";
+        int i = 1;
+        for (const auto &transaction : searchResult)
+        {
+            auto [amount, merchant, date] = transaction;
+            std::cout << i << ". [" << date << "]: "
+                      << std::fixed << std::setprecision(2) << amount << " Euros at " << merchant << "\n";
+            i++;
+        }
+        std::cout << std::string(40, '-') << "\n";
     }
 };
 

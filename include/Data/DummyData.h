@@ -7,6 +7,7 @@
 #include "CardORM.h"
 #include "TransactionORM.h"
 #include "HistoryORM.h"
+#include <algorithm>
 
 class AddDummyData
 {
@@ -73,7 +74,7 @@ class AddDummyData
     bool addDummyTransaction()
     {
         bool result = true;
-        const std::tuple<std::string, int, std::string, int> initTransactions[] = {
+        std::tuple<std::string, int, std::string, int> initTransactions[] = {
             {"4532-2830", 1, "2025-01-15 14:23:10", 450},
             {"4916-4231", 2, "2025-01-10 08:45:32", 3200},
             {"5254-7899", 3, "2025-01-05 18:32:21", 700},
@@ -121,6 +122,14 @@ class AddDummyData
             {"6011-9596", 3, "2025-01-15 14:05:12", 950},
             {"3793-2306", 1, "2025-01-08 20:30:58", 2750},
             {"3056-5904", 2, "2025-01-09 17:20:25", 3900}};
+
+        std::sort(std::begin(initTransactions), std::end(initTransactions),
+                  [](const std::tuple<std::string, int, std::string, int> &t1,
+                     const std::tuple<std::string, int, std::string, int> &t2)
+                  {
+                      return std::get<2>(t1) < std::get<2>(t2);
+                  });
+
         for (const auto &transaction : initTransactions)
         {
             auto [card_number, merchant_id, datetime, ammount] = transaction;
