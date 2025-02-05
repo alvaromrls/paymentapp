@@ -53,11 +53,11 @@ class AddDummyData
 
             CardIssuersORM issuer;
             issuer.setCardType(card_issuer);
-            database->loadData(issuer);
+            database->load(issuer);
 
             AccountORM account;
             account.setId(account_id);
-            database->loadData(account);
+            database->load(account);
 
             CardORM newCard;
             newCard.setAccountId(account);
@@ -131,7 +131,7 @@ class AddDummyData
 
             MerchantORM merchant;
             merchant.setMerchantId(merchant_id);
-            database->loadData(merchant);
+            database->load(merchant);
 
             TransactionORM newTransaction;
             newTransaction.setAmount(ammount);
@@ -141,7 +141,7 @@ class AddDummyData
 
             AccountORM main_account;
             main_account.setId(card.getAccountId());
-            database->loadData(main_account);
+            database->load(main_account);
 
             if (database->saveData(newTransaction))
             {

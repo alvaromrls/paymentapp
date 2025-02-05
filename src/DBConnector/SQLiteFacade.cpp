@@ -43,7 +43,7 @@ bool SQLiteFacade::saveData(IBaseORM &data)
     return executeQuery(data.save());
 }
 
-bool SQLiteFacade::loadData(IBaseORM &data)
+bool SQLiteFacade::load(IBaseORM &data)
 {
     return executeQuery(data.load(), &data);
 }
@@ -90,6 +90,7 @@ int SQLiteFacade::loadcallback(void *data, int argc, char **argv, char **colName
     return 0;
 }
 
-int SQLiteFacade::getLastInsertedId(){
+int SQLiteFacade::getLastInsertedId()
+{
     return static_cast<int>(sqlite3_last_insert_rowid(db));
 }

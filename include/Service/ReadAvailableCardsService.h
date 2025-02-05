@@ -31,7 +31,7 @@ public:
     {
         std::vector<std::tuple<std::string, std::string, std::string>> result;
         AvailableCardsORM dispoCards;
-        db->loadData(dispoCards);
+        db->load(dispoCards);
         for (const auto &card : dispoCards.getCollection())
         {
             result.push_back(std::tuple<std::string, std::string, std::string>(

@@ -16,7 +16,7 @@ public:
 
     bool createTables() override;
     bool saveData(IBaseORM &data) override;
-    bool loadData(IBaseORM &data) override;
+    bool load(IBaseORM &data) override;
     bool load(IBaseORM &data, std::string query) override;
     int getLastInsertedId() override;
 

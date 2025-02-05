@@ -56,7 +56,7 @@ int main()
     database.load(user, user.findByCardNumber());
 
     TotalDepositORM user_deposits(user);
-    database.loadData(user_deposits);
+    database.load(user_deposits);
 
     std::cout << "User founds: " << user_deposits.getAmount() << "\n";
 
