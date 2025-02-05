@@ -30,7 +30,8 @@ public:
             << " JOIN " << HISTORY_TABLE_NAME << " h ON t.transaction_id = h.transaction_id"
             << " JOIN " << ACCOUNT_TABLE_NAME << " a  ON h.account_id = a.account_id"
             << " WHERE a.account_id = " << accountId
-            << " AND transaction_time BETWEEN '" << _start << "' AND '" << _end <<"'"; 
+            << " AND transaction_time BETWEEN '" << _start << "' AND '" << _end << "'"
+            << " ORDER BY transaction_time DESC";
 
         return sql.str();
     }
