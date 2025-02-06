@@ -25,7 +25,7 @@ public:
     virtual ~ORMCollector() = default;
 
     // Adds an ORM object to the collection
-    void add(const T &orm)
+    void add(const T orm)
     {
         vector.push_back(orm);
     }
@@ -40,8 +40,7 @@ public:
         if (count >= pushEvery)
         {
             add(data);
-            count = 0;  // Reset counter
-            data = T(); // Reset temporary data object for the next entry
+            count = 0; // Reset counter
         }
     }
 
@@ -58,10 +57,10 @@ public:
     }
 
     // No-op save method, as ORMCollector doesn't persist directly
-    const std::string save() override { return {}; }
+    virtual const std::string save() override { return {}; }
 
     // Generates SQL query to load all objects of type T from the database
-    std::string load() override
+    virtual std::string load() override
     {
         return selectAllData(data.getTableName());
     }
