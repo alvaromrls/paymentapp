@@ -139,3 +139,43 @@ public:
         }
     }
 };
+
+// Class to get a valid Date from user interface.
+class DateParser
+{
+    std::unique_ptr<DateTimeSQLValidator> DateValidator;
+
+public:
+    DateParser()
+    {
+        DateValidator = std::make_unique<DateTimeSQLValidator>();
+    }
+
+    void printDateFormat()
+    {
+        std::cout << "->Time format is YYYY-MM-DD (fill with 0's if needed)\n";
+    }
+
+    std::string askForDates(const std::string &limit, const std::string &ifEmpty)
+    {
+        while (true)
+        {
+            std::cout << "Please select a " << limit << " date for the request (empty = ignore):";
+            std::string userInput;
+            std::getline(std::cin, userInput);
+            // std::cout << userInput << std::endl;
+            if (userInput == "")
+            {
+                return ifEmpty;
+            }
+            else if (DateValidator->validate(userInput))
+            {
+                return userInput;
+            }
+            else
+            {
+                printDateFormat();
+            }
+        }
+    }
+};
