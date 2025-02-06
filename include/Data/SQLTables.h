@@ -20,7 +20,7 @@ namespace SQLTables
         std::string(ACCOUNT_TABLE_NAME) +
         " (account_id) ON DELETE CASCADE, "
         "FOREIGN KEY (transaction_id) REFERENCES " +
-        std::string(TRANSTACTION_TABLE_NAME) +
+        std::string(TRANSACTION_TABLE_NAME) +
         " (transaction_id) ON DELETE CASCADE);";
 
     const std::string CardTable =
@@ -47,7 +47,7 @@ namespace SQLTables
         "issuer_fee INTEGER NOT NULL);";
 
     const std::string TransactionTable =
-        "CREATE TABLE IF NOT EXISTS " + std::string(TRANSTACTION_TABLE_NAME) +
+        "CREATE TABLE IF NOT EXISTS " + std::string(TRANSACTION_TABLE_NAME) +
         "("
         "transaction_id INTEGER PRIMARY KEY AUTOINCREMENT, "
         "card_id TEXT, "

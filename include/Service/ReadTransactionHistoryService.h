@@ -28,7 +28,7 @@ public:
     {
         std::stringstream sql;
 
-        sql << "SELECT t.* FROM " << TRANSTACTION_TABLE_NAME << " t"
+        sql << "SELECT t.* FROM " << TRANSACTION_TABLE_NAME << " t"
             << " JOIN " << HISTORY_TABLE_NAME << " h ON t.transaction_id = h.transaction_id"
             << " JOIN " << ACCOUNT_TABLE_NAME << " a  ON h.account_id = a.account_id"
             << " WHERE a.account_id = " << accountId

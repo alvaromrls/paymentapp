@@ -58,7 +58,7 @@ public:
     }
 
     // No-op save method, as ORMCollector doesn't persist directly
-    std::string save() override { return {}; }
+    const std::string save() override { return {}; }
 
     // Generates SQL query to load all objects of type T from the database
     std::string load() override

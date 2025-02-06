@@ -34,7 +34,7 @@ public:
         std::stringstream sql;
         sql << "SELECT SUM(t." << TOTAL_DEPOSIT__AMOUNT << ") AS amount "
             << "FROM " << HISTORY_TABLE_NAME << " ah "
-            << "JOIN " << TRANSTACTION_TABLE_NAME << " t ON ah.transaction_id = t.transaction_id "
+            << "JOIN " << TRANSACTION_TABLE_NAME << " t ON ah.transaction_id = t.transaction_id "
             << "WHERE ah.account_id = " << account_id << ";";
         return sql.str();
     }
