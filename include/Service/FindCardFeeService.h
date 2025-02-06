@@ -7,6 +7,7 @@
 
 #include "Commands.h"
 
+// Implements FindCardFee: Gets it from DB.
 class FindCardFeeDB : public FindCardFee
 {
     IDatabaseFacade *db;
@@ -26,7 +27,7 @@ public:
 
         if (feeId == 0)
         {
-            return 0;
+            return 0; // Not found
         }
         else
         {

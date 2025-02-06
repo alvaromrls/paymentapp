@@ -7,7 +7,7 @@
 #include "Commands.h"
 #include "IDabaseFacade.h"
 
-// Class to implement dependency injection for reading non-expired cards from the database.
+// Class to implement read cards from the database.
 class ReadAvailableCardsDB : public ReadAvailableCards
 {
     IDatabaseFacade *db;

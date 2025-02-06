@@ -9,6 +9,7 @@
 #include "IDabaseFacade.h"
 #include "HistoryORM.h"
 
+// Custom ORM for the complex query
 class TransactionHistoryFromCard : public ORMCollector<TransactionORM>
 {
     int accountId;
@@ -19,6 +20,7 @@ public:
     TransactionHistoryFromCard(CardORM card, const std::string &start, const std::string &end)
         : accountId(card.getAccountId())
     {
+        // Conversion from Date to DateTime
         _start = start + " 00:00:00";
         _end = end + " 23:59:59";
     };
@@ -37,6 +39,7 @@ public:
     }
 };
 
+// Implements read transaction history: Reads from DB.
 class ReadTransactionHistoryDB : public ReadTransactionHistory
 {
     IDatabaseFacade *db;
@@ -51,6 +54,8 @@ public:
                                          const std::string endingDate) override
     {
         std::vector<TransactionHistory> result;
+
+        // Gets the card
         CardORM card;
         card.setCardNumber(cardNumber);
         db->load(card, card.findByCardNumber());
@@ -59,9 +64,12 @@ public:
             std::cout << "Card not found in DB \n\n";
             return result;
         }
+
+        // Gets the transaction history
         TransactionHistoryFromCard history{card, startingDate, endingDate};
         db->load(history);
 
+        // Format the data
         for (const auto &transaction : history.getCollection())
         {
             result.push_back(
