@@ -7,22 +7,28 @@
 #include "CardORM.h"
 #include "MerchantORM.h"
 
-constexpr const std::string_view TRANSTACTION_TABLE_NAME = "TransactionTable";
+// Constants for table name and number of expected elements per row
+constexpr const std::string_view TRANSACTION_TABLE_NAME = "TransactionTable";
 constexpr int TRANSACTION_NUMBER_ELEMENTS = 5;
 
+// ORM class representing transactions in the database
 class TransactionORM : public IBaseORM
 {
-    int transactionId;
-    std::string cardId;
-    int merchantId;
-    std::string transactionTime;
-    int amount;
+    int transactionId;           // Unique transaction identifier
+    std::string cardId;          // ID of the card used in the transaction
+    int merchantId;              // ID of the merchant involved in the transaction
+    std::string transactionTime; // Timestamp of the transaction
+    int amount;                  // Transaction amount
 
-    void _setMerchantId(int id) { merchantId = id; } // Internal use
+    // Internal setters used in mapping database fields
+    void _setMerchantId(int id) { merchantId = id; }
     void _setCardId(const std::string &id) { cardId = id; }
 
 public:
-    TransactionORM() : transactionId{0}, cardId{}, merchantId{0}, transactionTime{}, amount{0}, IBaseORM(std::string(TRANSTACTION_TABLE_NAME))
+    // Constructor initializes fields and maps column names to setter functions
+    TransactionORM()
+        : transactionId{0}, cardId{}, merchantId{0}, transactionTime{}, amount{0},
+          IBaseORM(std::string(TRANSACTION_TABLE_NAME))
     {
         setters["transaction_id"] = [this](const std::string &value)
         { this->setTransactionId(std::stoi(value)); };
@@ -36,7 +42,8 @@ public:
         { this->setAmount(std::stoi(value)); };
     }
 
-    void setTransactionId(int id) { transactionId = id; } // Internal use
+    // Getters and setters for transaction attributes
+    void setTransactionId(int id) { transactionId = id; }
     int getTransactionId() const { return transactionId; }
 
     void setCardId(CardORM &card) { cardId = card.getCardId(); }
@@ -51,6 +58,7 @@ public:
     void setAmount(int amt) { amount = amt; }
     int getAmount() const { return amount; }
 
+    // Generates an SQL query to insert a new transaction into the database
     const std::string save() override
     {
         std::stringstream sql;
@@ -59,6 +67,7 @@ public:
         return sql.str();
     }
 
+    // Generates an SQL query to load transaction data based on transaction ID
     std::string load() override
     {
         std::stringstream sql;
@@ -66,11 +75,13 @@ public:
         return sql.str();
     }
 
+    // Static method to generate an SQL query to load all transactions
     static const std::string loadAll()
     {
-        return selectAllData(std::string(TRANSTACTION_TABLE_NAME));
+        return selectAllData(std::string(TRANSACTION_TABLE_NAME));
     }
 
+    // Returns the number of elements expected in a transaction row
     static const int getElements()
     {
         return TRANSACTION_NUMBER_ELEMENTS;

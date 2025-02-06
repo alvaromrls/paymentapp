@@ -1,44 +1,52 @@
-#pragma once
+#pragma once // Ensures the file is included only once during compilation.
+
 #include <unordered_map>
 #include "Utils.h"
 #include <string>
 #include <functional>
 
-// Clase base para el ORM
+// Base class for Object-Relational Mapping (ORM).
+// Provides a common interface for managing database entities.
 class IBaseORM
 {
-    std::string _tableName;
+    std::string _tableName; // Stores the name of the corresponding SQL table.
 
 protected:
-    // Mapa de seters
+    // A map of setter functions for dynamically assigning values to object attributes.
     std::unordered_map<std::string, std::function<void(const std::string &)>> setters;
 
 public:
-    IBaseORM() : _tableName("") {};
-    IBaseORM(std::string tableName) : _tableName(tableName) {};
+    // Default constructor initializing an empty table name.
+    IBaseORM() : _tableName("") {}
+
+    // Constructor to initialize with a specific table name.
+    explicit IBaseORM(std::string tableName) : _tableName(tableName) {}
+
+    // Virtual destructor to ensure proper cleanup of derived classes.
     virtual ~IBaseORM() = default;
 
-    // Método para obtener el nombre de la tabla SQL
+    // Returns the table name associated with the ORM object.
     std::string getTableName() const { return _tableName; }
 
-    // Método para guardar un objeto en la base de datos (devuelve la consulta SQL)
+    // Pure virtual function to generate an SQL statement for inserting or updating the object.
     virtual const std::string save() = 0;
 
-    // Método para obtener un objeto desde la base de datos por su ID (devuelve la consulta SQL)
+    // Pure virtual function to generate an SQL query for retrieving an object by its ID.
     virtual std::string load() = 0;
 
-    // Método para establecer los atributos del objeto a partir de una consulta SQL
+    // Populates object attributes from an SQL query result.
     virtual void fromSQL(const std::string &colName, const std::string &colValue)
     {
-        if (colValue == "NULL")
+        if (colValue == "NULL") // Ignore null values.
         {
             return;
         }
-        // Buscar el setter correspondiente y aplicar el valor
+
+        // Find the corresponding setter function and apply the value.
         auto it = setters.find(colName);
         if (it != setters.end())
         {
-            it->second(colValue); // Llama al setter correspondiente
+            it->second(colValue); // Calls the appropriate setter function.
         }
     }
 };

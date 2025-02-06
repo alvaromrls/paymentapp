@@ -5,52 +5,64 @@
 #include <string>
 #include "IBaseORM.h"
 
-// Clase collector para manejar la colección de objetos ORM derivados de IBaseORM
+// Collector class for managing ORM objects derived from IBaseORM
 template <typename T>
 class ORMCollector : public IBaseORM
 {
 private:
-    std::vector<T> vector; // Vector para almacenar objetos del tipo T
-    T data;
-    int count;     // Contador para las iteraciones
-    int pushEvery; // Número de iteraciones antes de hacer push
+    std::vector<T> vector; // Stores objects of type T
+    T data;                // Temporary storage for parsing SQL data
+    int count;             // Counter for tracking parsed elements
+    int pushEvery;         // Number of elements before pushing an object
 
 public:
+    // Constructor allowing customization of push frequency
     ORMCollector(int pushEvery) : count(0), pushEvery(pushEvery), IBaseORM("") {}
+
+    // Default constructor uses `T::getElements()` as push frequency
     ORMCollector() : count(0), pushEvery(T::getElements()) {}
+
     virtual ~ORMCollector() = default;
 
-    // Método para agregar un objeto a la colección
-    void add(T orm)
+    // Adds an ORM object to the collection
+    void add(const T &orm)
     {
-        vector.push_back(orm); // Almacena el objeto en el vector
+        vector.push_back(orm);
     }
 
-    // Implementación del método fromSQL de IBaseORM
+    // Processes SQL data and adds objects to the collection when complete
     void fromSQL(const std::string &colName, const std::string &colValue) override
     {
-        data.fromSQL(colName, colValue);
+        data.fromSQL(colName, colValue); // Set attribute in temporary object
         count++;
-        // Solo hacer push cada 'pushEvery' iteraciones
+
+        // Push object into the collection once all elements are set
         if (count >= pushEvery)
         {
             add(data);
-            count = 0; // Reinicia el contador
+            count = 0;  // Reset counter
+            data = T(); // Reset temporary data object for the next entry
         }
     }
 
-    // Obtener el tamaño de la colección
+    // Returns the number of stored ORM objects
     size_t size() const
     {
         return vector.size();
     }
 
-    // Método para acceder a la colección
-    const std::vector<T> getCollection() const
+    // Returns the collection of ORM objects
+    const std::vector<T> &getCollection() const
     {
         return vector;
     }
 
-    std::string virtual const save() override { return {}; }
-    std::string virtual load() override { return selectAllData(data.getTableName()); }
+    // No-op save method, as ORMCollector doesn't persist directly
+    std::string save() override { return {}; }
+
+    // Generates SQL query to load all objects of type T from the database
+    std::string load() override
+    {
+        return selectAllData(data.getTableName());
+    }
 };

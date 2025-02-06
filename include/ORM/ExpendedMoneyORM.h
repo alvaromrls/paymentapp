@@ -10,11 +10,7 @@
 
 const std::string TOTAL_DEPOSIT__AMOUNT = "amount";
 
-/**
- * @brief This class acts as an ORM for getting al the money
- *        in the history given a credit card. It can only read data.
- *
- */
+// This class acts as an ORM for getting al the money in the history given a credit card. It can only read data.
 class ExpendedMoneyORM : public IBaseORM
 {
     int account_id;
