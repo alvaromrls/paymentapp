@@ -90,9 +90,11 @@ The **Service layer** serves as the bridge between the **UI** and the **database
 ## Use Example
 
 The initial screen looks like:
+
 ![UI](doc/initial.png)
 
 And some operations:
+
 ![UI](doc/wrong-options.png)
 ![UI](doc/dummy.png)
 
