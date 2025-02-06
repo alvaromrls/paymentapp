@@ -58,7 +58,7 @@ public:
     }
 
     // Ask in a loop until gets a valid card format or null input.
-    float askForCard()
+    float askForMoney()
     {
         while (true)
         {
@@ -81,7 +81,7 @@ public:
     }
 };
 
-// Class to get a valid Credit card from user interface.
+// Class to get a valid Merchant from user interface.
 class MerchantParser
 {
     std::unique_ptr<InputValidator> validator; // validate option is correctly given

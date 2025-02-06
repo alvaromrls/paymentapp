@@ -60,10 +60,15 @@ public:
 const std::string PAY_COMMAND_HELP = "Request a new payment. It will ask for the Amount, the Card Number, and the Commerce Type.";
 class PayCommand : public LineParserCommand
 {
-    std::map<std::string, int> merchantTaxMap;
+    // Services
     std::unique_ptr<CalculateTotalFounds> totalFoundsService;
     std::unique_ptr<FindCardFee> findCardFeeService;
     std::unique_ptr<AddNewTransaction> newTransactionService;
+
+    // Merchant map (Name to Fee)
+    std::map<std::string, int> merchantTaxMap;
+
+    // Data parsers
     CreditCardParser creditcardparser;
     MoneyParser moneyParser;
     MerchantParser merchantParser;
@@ -85,6 +90,8 @@ public:
     {
         std::string cardNumber;
         std::cout << "Executing payment...\n";
+
+        // 1. Ask for credit cartd
         creditcardparser.printCardFormat();
         auto card = creditcardparser.askForCard();
         if (card.has_value())
@@ -92,6 +99,7 @@ public:
             cardNumber = card.value();
         }
 
+        // 1.1 Get fee from given card
         int fee = findCardFeeService->getFee(cardNumber);
         if (fee == 0)
         {
@@ -99,6 +107,7 @@ public:
             return;
         }
 
+        // 1.2 Check available founds from given card
         float founds = totalFoundsService->getFounds(cardNumber);
         if (founds < 0)
         {
@@ -106,14 +115,16 @@ public:
             return;
         }
 
+        // 2. Ask for the amount
         std::cout << std::string(40, '-') << "\n";
         moneyParser.printFormat();
-        float amount = moneyParser.askForCard();
+        float amount = moneyParser.askForMoney();
         if (amount < 0)
         {
             return;
         }
 
+        // 3. Ask for Merchant amount
         merchantParser.printFormat();
         auto optional_merchant = merchantParser.askForMerchant();
         std::string merchant;
@@ -126,10 +137,12 @@ public:
             return;
         }
 
+        // 4. Calculate total feeds and total amount
         float amount_card_fee = amount * float(fee / 100.f);
         float amount_merchant_fee = amount * float(merchantTaxMap[merchant] / 100.f);
         float total_amount = amount + amount_card_fee + amount_merchant_fee;
 
+        // 4.1 Print all the information to user
         std::cout << std::string(40, '-') << "\n"
                   << "Initial Amount:\t\t" << amount << "\n"
                   << "Card fee (%):\t\t" << fee << "\n"
@@ -141,20 +154,21 @@ public:
                   << std::string(40, '-') << "\n"
                   << "Available Founds:\t" << founds << " (Euros)\n"
                   << std::string(40, '-') << "\n";
+
+        // 5. Check if it's posible to pay
         if (total_amount > founds)
         {
             std::cout << "[Error]: Not enought founds\n";
             return;
         }
-        else
-        {
-            std::cout << "Storing transaction ...\n";
-            newTransactionService->addTransaction(cardNumber, merchant, total_amount);
-            std::cout << "Transaction stored! \n";
-            std::cout << std::string(40, '-') << "\n";
-            std::cout << "Balance after transaction:\t" << founds - total_amount << "\n";
-            std::cout << std::string(40, '-') << "\n";
-        }
+
+        // 6. Execute the payment (storing it in DB)
+        std::cout << "Storing transaction ...\n";
+        newTransactionService->addTransaction(cardNumber, merchant, total_amount);
+        std::cout << "Transaction stored! \n";
+        std::cout << std::string(40, '-') << "\n";
+        std::cout << "Balance after transaction:\t" << founds - total_amount << "\n";
+        std::cout << std::string(40, '-') << "\n";
     }
 };
 
@@ -175,9 +189,14 @@ public:
 const std::string HISTORY_COMMAND_HELP = "Given a Credit Card, it will show the transaction history. Optional: date range.";
 class HistoryCommand : public LineParserCommand
 {
+    // Validators
     std::unique_ptr<DateTimeSQLValidator> DateValidator;
     std::unique_ptr<CreditCardValidator> CardValidator;
+
+    // Service
     std::unique_ptr<ReadTransactionHistory> service;
+
+    // Parsers
     CreditCardParser creditcardparser;
 
     void printDateFormat()
@@ -239,7 +258,7 @@ public:
         startingDate = askForDates("starting", "1990-01-01");
         endingDate = askForDates("ending", "2300-01-01");
 
-        if (startingDate >= endingDate)
+        if (startingDate >= endingDate) // Invalid range
         {
             std::cout << std::string(40, '-') << "\n";
             std::cout << "[Error]: starting date should be before endingDate \n";
@@ -247,16 +266,19 @@ public:
             return;
         }
 
+        // Get data from given card and date range
         auto searchResult = service->read(cardNumber, startingDate, endingDate);
 
         std::cout << std::string(40, '-') << "\n";
 
+        // Empty case
         if (searchResult.empty())
         {
             std::cout << "Nothing found with the given data \n";
             return;
         }
 
+        // Print transactions
         std::cout << searchResult.size() << " transaction(s) found \n";
         std::cout << std::string(40, '-') << "\n";
         int i = 1;
@@ -277,7 +299,7 @@ using ReadCards = std::tuple<std::string, std::string, std::string, std::string>
 class ReadAvailableCards
 {
 public:
-    // CARD NUMBER - USER NAME - ISSUER TYPE
+    // AVAILABLE - CARD NUMBER - USER NAME - ISSUER TYPE
     virtual std::vector<ReadCards> read() = 0;
     virtual ~ReadAvailableCards() = default;
 };
@@ -286,6 +308,7 @@ public:
 const std::string SHOW_DUMMY_COMMAND_HELP = "Shows all added Card numbers. [For this POC version]. ";
 class ShowDummyCommand : public LineParserCommand
 {
+    // Services
     std::unique_ptr<ReadAvailableCards> readCommand;
 
 public:

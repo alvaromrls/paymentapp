@@ -9,13 +9,14 @@
 #include "InputValidator.h"
 #include "Commands.h"
 
+// Main class to manage de command line interface
 class CommandLineParser
 {
-    const std::string initialmsg = "SELECT OPERATION: ";
-    std::vector<std::string> options;                                             // for order & index access
+    const std::string initialmsg = "SELECT OPERATION: ";                          // Init msg
+    std::vector<std::string> options;                                             // For fixed order & index access
     std::unordered_map<std::string, std::unique_ptr<LineParserCommand>> commands; // stores commands
-    bool active = false;                                                          // Shows is it's running
-    std::unique_ptr<InputValidator> validator;                                    // validate option is correctly given
+    bool active = false;                                                          // Shows if it's running
+    std::unique_ptr<InputValidator> validator;                                    // Validate option is correctly given
 
     // Format text for user
     std::string formatOption(int option, const std::string &description)
@@ -26,10 +27,7 @@ class CommandLineParser
     }
 
 public:
-    CommandLineParser()
-    {
-    }
-
+    // Starts the cli, not possible to add new commands. Ensuring HELP & EXIT are the lasts ones.
     void startRunning()
     {
         // Ensure these are the last
@@ -73,6 +71,7 @@ public:
         return active;
     }
 
+    // Ask for a numeric option to the user
     void processUserInput()
     {
         std::cout << "\nChoose an option (1-" << options.size() << "): ";
