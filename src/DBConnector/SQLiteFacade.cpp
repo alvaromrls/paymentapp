@@ -19,7 +19,7 @@ SQLiteFacade::~SQLiteFacade()
     }
 }
 
-bool SQLiteFacade::createTables()
+bool SQLiteFacade::createTables(std::vector<std::string> tables)
 {
     // Habilitar claves foráneas
     std::string enableForeignKeysQuery = "PRAGMA foreign_keys = ON;";
@@ -28,7 +28,7 @@ bool SQLiteFacade::createTables()
         return false;
     }
     // Crear las tablas (si no existen)
-    for (auto const &table : SQLTables::all)
+    for (auto const &table : tables)
     {
         if (!executeQuery(table))
         {

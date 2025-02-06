@@ -2,7 +2,9 @@
 
 #include "ORM.h"
 #include <string>
+#include <vector>
 
+// DB Table Definitions
 namespace SQLTables
 {
     const std::string AccountTable =
@@ -59,18 +61,11 @@ namespace SQLTables
         std::string(MERCHANTS_TABLE_NAME) +
         " (merchant_id) ON DELETE CASCADE);";
 
-    std::string MerchantTable =
+    const std::string MerchantTable =
         "CREATE TABLE IF NOT EXISTS " + std::string(MERCHANTS_TABLE_NAME) +
         "("
         "merchant_id INTEGER PRIMARY KEY AUTOINCREMENT, "
         "merchant TEXT NOT NULL,"
         "merchant_fee INTEGER NOT NULL);";
 
-    std::string all[] = {
-        AccountTable,
-        HistoryTable,
-        CardTable,
-        CardIssuersTable,
-        TransactionTable,
-        MerchantTable};
 };

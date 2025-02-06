@@ -5,6 +5,7 @@
 #include "CardIssuersORM.h"
 #include <tuple>
 
+// This class adds realistic initial data (Merchants & Card issuers)
 class AddInitialData
 {
     bool addDefaultMerchants()

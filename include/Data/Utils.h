@@ -21,6 +21,14 @@ std::string generateSimpleUUID();
  */
 std::string selectWithId(const std::string &table, const std::string &colName, const int id);
 
+/**
+ * @brief Prepares a SQL query for selecting a specific Element with string ID
+ *
+ * @param table to seach in
+ * @param colName the name of the column
+ * @param id the param to search for
+ * @return std::string
+ */
 std::string selectWithId(const std::string &table, const std::string &colName, const std::string &id);
 
 /**

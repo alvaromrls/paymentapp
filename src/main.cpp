@@ -10,6 +10,7 @@
 
 #include "InitialData.h"
 #include "DummyData.h"
+#include "SQLTables.h"
 
 #include "CommandLineParser.h"
 
@@ -22,15 +23,23 @@
 int main()
 {
     SQLiteFacade database{"payments.db"};
-    database.createTables();
 
-    // Load card issuers
+    // Load card issuers (can fail)
     ORMCollector<CardIssuersORM> issuers(CardIssuersORM::getElements());
     database.load(issuers, CardIssuersORM::loadAll());
 
     // Database is empty
     if (issuers.getCollection().empty())
     {
+        std::vector<std::string> SQLTables = {
+            SQLTables::AccountTable,
+            SQLTables::HistoryTable,
+            SQLTables::CardTable,
+            SQLTables::CardIssuersTable,
+            SQLTables::TransactionTable,
+            SQLTables::MerchantTable};
+
+        database.createTables(SQLTables);
         AddInitialData a(&database);
         AddDummyData d(&database);
         database.load(issuers, CardIssuersORM::loadAll());

@@ -9,8 +9,10 @@
 #include "HistoryORM.h"
 #include <algorithm>
 
+// This class adds FAKE (DUMMY) data to ensure the app can be used
 class AddDummyData
 {
+    // Add dummy accounts
     bool addDummyAccount()
     {
         bool result = true;
@@ -23,6 +25,7 @@ class AddDummyData
         }
         return result;
     }
+    // Add credit cards to accounts, could be expired or not
     bool addDummyCard()
     {
         bool result = true;
@@ -71,6 +74,7 @@ class AddDummyData
         return result;
     }
 
+    // Add transactions to the history
     bool addDummyTransaction()
     {
         bool result = true;
@@ -163,8 +167,7 @@ class AddDummyData
             else
             {
                 result = false;
-                std::cout << "A transaction for card: " << card_number << " went wrong \n";
-                std::cout << "MERCHANT: " << merchant.getMerchantId() << " CARD " << card.getCardId() << std::endl;
+                std::cout << "A transaction for card: " << card_number << " went wrong at set up\n";
             }
         }
         return result;
@@ -180,5 +183,9 @@ public:
         result &= addDummyAccount();
         result &= addDummyCard();
         result &= addDummyTransaction();
+        if (!result)
+        {
+            std::cout << "Initial dummy data may be corrupted \n";
+        }
     }
 };
