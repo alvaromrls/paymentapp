@@ -103,6 +103,7 @@ public:
         int fee = findCardFeeService->getFee(cardNumber);
         if (fee == 0)
         {
+            std::cout << std::string(40, '-') << "\n";
             std::cout << "[Error]: Card not found! \n";
             return;
         }
@@ -111,6 +112,7 @@ public:
         float founds = totalFoundsService->getFounds(cardNumber);
         if (founds < 0)
         {
+            std::cout << std::string(40, '-') << "\n";
             std::cout << "[Error]: Expired card \n";
             return;
         }
@@ -190,7 +192,6 @@ const std::string HISTORY_COMMAND_HELP = "Given a Credit Card, it will show the 
 class HistoryCommand : public LineParserCommand
 {
     // Validators
-    std::unique_ptr<DateTimeSQLValidator> DateValidator;
     std::unique_ptr<CreditCardValidator> CardValidator;
 
     // Service
@@ -198,40 +199,13 @@ class HistoryCommand : public LineParserCommand
 
     // Parsers
     CreditCardParser creditcardparser;
-
-    void printDateFormat()
-    {
-        std::cout << "->Time format is YYYY-MM-DD (fill with 0's if needed)\n";
-    }
-
-    std::string askForDates(const std::string &limit, const std::string &ifEmpty)
-    {
-        while (true)
-        {
-            std::cout << "Please select a " << limit << " date for the request (empty = ignore1):";
-            std::string userInput;
-            std::getline(std::cin, userInput);
-            // std::cout << userInput << std::endl;
-            if (userInput == "")
-            {
-                return ifEmpty;
-            }
-            else if (DateValidator->validate(userInput))
-            {
-                return userInput;
-            }
-            else
-            {
-                printDateFormat();
-            }
-        }
-    }
+    DateParser dateParser;
 
 public:
     HistoryCommand(std::unique_ptr<ReadTransactionHistory> service)
-        : LineParserCommand(HISTORY_COMMAND_HELP), service(std::move(service)), creditcardparser()
+        : LineParserCommand(HISTORY_COMMAND_HELP), service(std::move(service)),
+          creditcardparser(), dateParser()
     {
-        DateValidator = std::make_unique<DateTimeSQLValidator>();
         CardValidator = std::make_unique<CreditCardValidator>();
     }
 
@@ -254,9 +228,9 @@ public:
         }
 
         // Asking for Date Interval
-        printDateFormat();
-        startingDate = askForDates("starting", "1990-01-01");
-        endingDate = askForDates("ending", "2300-01-01");
+        dateParser.printDateFormat();
+        startingDate = dateParser.askForDates("starting", "1990-01-01");
+        endingDate = dateParser.askForDates("ending", "2300-01-01");
 
         if (startingDate >= endingDate) // Invalid range
         {
